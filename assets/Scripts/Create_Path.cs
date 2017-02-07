@@ -8,18 +8,73 @@ using UnityEditor;
 
 public class Create_Path : MonoBehaviour {
 	public List<Vector3> mMap = new List<Vector3> ();
-	// Use this for initialization
-	void Start () {
+    public List<Vector3> tower1List = new List<Vector3>();
+    public List<Vector3> tower2List = new List<Vector3>();
+    public List<Vector3> tower3List = new List<Vector3>();
+    public List<Vector3> tower4List = new List<Vector3>();
+    // Use this for initialization
+    void Start () {
 		
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetMouseButtonUp (1)) {
-			if (this.mMap.Count != 0)
-				this.mMap.RemoveAt (this.mMap.Count - 1);
+		if (Input.GetMouseButtonDown(1))
+        { // delete
+            Vector3 pos = Input.mousePosition;
+            pos.z = 10;
+            pos = Camera.main.ScreenToWorldPoint(pos);
+            Debug.Log(pos);
+            pos.x = Mathf.RoundToInt(pos.x);
+            pos.z = Mathf.RoundToInt(pos.z);
+            if (Input.GetKey(KeyCode.Alpha1) && tower1List.Count > 0) // delete tower 1
+            {
+                for (int i = 0; i < tower1List.Count; i++)
+                {
+                    if (pos.Equals(tower1List[i]))
+                    {
+                        tower1List.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+            else if (Input.GetKey(KeyCode.Alpha2) && tower2List.Count > 0) // delete tower 2
+            {
+                for (int i = 0; i < tower2List.Count; i++)
+                {
+                    if (pos.Equals(tower2List[i]))
+                    {
+                        tower2List.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+            else if (Input.GetKey(KeyCode.Alpha3) && tower3List.Count > 0) // delete tower 3
+            {
+                for (int i = 0; i < tower3List.Count; i++)
+                {
+                    if (pos.Equals(tower3List[i]))
+                    {
+                        tower3List.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+            else if (Input.GetKey(KeyCode.Alpha4) && tower4List.Count > 0) // delete tower 4
+            {
+                for (int i = 0; i < tower4List.Count; i++)
+                {
+                    if (pos.Equals(tower4List[i]))
+                    {
+                        tower4List.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+            else if (this.mMap.Count != 0) // delete path
+                this.mMap.RemoveAt (this.mMap.Count - 1);
 		}
-		if (Input.GetMouseButtonUp (0)) {
+		if (Input.GetMouseButtonDown (0)) { // add
 			Vector3 pos = Input.mousePosition;
 			pos.z = 10;
 
@@ -27,7 +82,11 @@ public class Create_Path : MonoBehaviour {
 
 			pos.x = Mathf.RoundToInt (pos.x);
 			pos.z = Mathf.RoundToInt (pos.z);
-			this.mMap.Add (pos);
+            if (Input.GetKey(KeyCode.Alpha1)) this.tower1List.Add(pos); // add tower 1
+            else if (Input.GetKey(KeyCode.Alpha2)) this.tower2List.Add(pos); // add tower 2
+            else if (Input.GetKey(KeyCode.Alpha3)) this.tower3List.Add(pos); // add tower 3
+            else if (Input.GetKey(KeyCode.Alpha4)) this.tower4List.Add(pos); // add tower 4
+            else this.mMap.Add (pos); // add path
 		}
 		if (Input.GetKey (KeyCode.W)) {
 			Vector3 pos = Camera.main.transform.localPosition;
@@ -49,23 +108,46 @@ public class Create_Path : MonoBehaviour {
 			pos.x += 0.3f;
 			Camera.main.transform.localPosition = pos;
 		}
-		if (Input.GetAxis ("Mouse ScrollWheel") < 0)
-			Camera.main.orthographicSize *= 1.05f;
-		if (Input.GetAxis ("Mouse ScrollWheel") > 0)
-			Camera.main.orthographicSize *= 0.95f;
+		if (Input.GetAxis ("Mouse ScrollWheel") < 0) //Camera zoom out
+            Camera.main.orthographicSize *= 1.05f;
+		if (Input.GetAxis ("Mouse ScrollWheel") > 0) //Camera zoom in
+            Camera.main.orthographicSize *= 0.95f;
 		if (Input.GetKeyUp (KeyCode.F1)) {
 			StringBuilder sb = new StringBuilder ();
-			for (int i = 0; i < this.mMap.Count; i++)
+            sb.AppendLine("#path#");
+            for (int i = 0; i < this.mMap.Count; i++)
 				sb.AppendLine (this.mMap [i].x + "," + this.mMap [i].z);
-			string path = EditorUtility.SaveFilePanel ("Save path","/Assets/Resources/Map", "1", "txt");
+            sb.AppendLine("#tower1#");
+            for (int i = 0; i < this.tower1List.Count; i++)
+            {
+                sb.AppendLine(string.Format("{0},{1}", this.tower1List[i].x, this.tower1List[i].z));
+            }
+            sb.AppendLine("#tower2#");
+            for (int i = 0; i < this.tower2List.Count; i++)
+            {
+                sb.AppendLine(string.Format("{0},{1}", this.tower2List[i].x, this.tower2List[i].z));
+            }
+            sb.AppendLine("#tower3#");
+            for (int i = 0; i < this.tower3List.Count; i++)
+            {
+                sb.AppendLine(string.Format("{0},{1}", this.tower3List[i].x, this.tower3List[i].z));
+            }
+            sb.AppendLine("#tower4#");
+            for (int i = 0; i < this.tower4List.Count; i++)
+            {
+                sb.AppendLine(string.Format("{0},{1}", this.tower4List[i].x, this.tower4List[i].z));
+            }
+            string path = EditorUtility.SaveFilePanel ("Save path","/Assets/Resources/Map", "1", "txt");
 			File.WriteAllText (path, sb.ToString ());
 		}
 	}
 	public void OnDrawGizmos(){
-		Gizmos.color = Color.white;
+        // draw path start point
+        Gizmos.color = Color.white;
 		if (mMap.Count > 0)
 			Gizmos.DrawCube (mMap [0], new Vector3 (0.95f, 0.95f, 0.95f));
-		Gizmos.color = Color.green;
+        // draw path 
+        Gizmos.color = Color.gray;
 		int x, z;
 		for (int i = 1; i < mMap.Count; i++) {
 			x = (int)mMap [i - 1].x;
@@ -85,8 +167,45 @@ public class Create_Path : MonoBehaviour {
 				Gizmos.DrawCube (new Vector3 (x, 0, z), new Vector3 (0.95f, 0.95f, 0.95f));
 			}
 		}
-		Gizmos.color = Color.red;
+        // draw path end point
+        Gizmos.color = Color.black;
 		if (mMap.Count > 0)
 			Gizmos.DrawCube (mMap [mMap.Count - 1], new Vector3 (0.95f, 0.95f, 0.95f));
-	}
+        // draw tower 1
+        if (tower1List.Count > 0)
+            Gizmos.color = Color.red;
+        {
+            for (int i = 0; i < tower1List.Count; i++)
+            {
+                Gizmos.DrawSphere(tower1List[i], 0.3f);
+            }
+        }
+        // draw tower 2
+        if (tower2List.Count > 0)
+            Gizmos.color = Color.yellow;
+        {
+            for (int i = 0; i < tower2List.Count; i++)
+            {
+                Gizmos.DrawSphere(tower2List[i], 0.3f);
+            }
+        }
+        // draw tower 3
+        if (tower3List.Count > 0)
+            Gizmos.color = Color.blue;
+        {
+            for (int i = 0; i < tower3List.Count; i++)
+            {
+                Gizmos.DrawSphere(tower3List[i], 0.3f);
+            }
+        }
+        // draw tower 4
+        if (tower4List.Count > 0)
+            Gizmos.color = Color.green;
+        {
+            for (int i = 0; i < tower4List.Count; i++)
+            {
+                Gizmos.DrawSphere(tower4List[i], 0.3f);
+            }
+        }
+    }
 }
