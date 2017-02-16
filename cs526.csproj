@@ -75,18 +75,29 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="assets\Scripts\Battle_Manager.cs" />
+    <Compile Include="assets\Scripts\Bullet.cs" />
+    <Compile Include="assets\Scripts\Bullet_Manager.cs" />
     <Compile Include="assets\Scripts\Create_Path.cs" />
+    <Compile Include="assets\Scripts\Enemy.cs" />
     <Compile Include="assets\Scripts\Enemy_Info.cs" />
+    <Compile Include="assets\Scripts\Enemy_Manager.cs" />
+    <Compile Include="assets\Scripts\Health.cs" />
     <Compile Include="assets\Scripts\Main.cs" />
+    <Compile Include="assets\Scripts\Map_Manager.cs" />
+    <Compile Include="assets\Scripts\Tower.cs" />
     <Compile Include="assets\Scripts\Tower_Info.cs" />
+    <Compile Include="assets\Scripts\Tower_Manager.cs" />
     <Compile Include="assets\Scripts\UI_Base.cs" />
     <Compile Include="assets\Scripts\UI_Battle.cs" />
     <Compile Include="assets\Scripts\UI_Manager.cs" />
+    <Compile Include="assets\Scripts\UI_Result.cs" />
     <Compile Include="assets\Scripts\UI_Select.cs" />
     <Compile Include="assets\Scripts\UI_Start.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\resources\Map\1.txt" />
+    <None Include="assets\resources\Map\2.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

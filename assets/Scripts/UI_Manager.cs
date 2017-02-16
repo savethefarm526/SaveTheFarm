@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class UI_Manager : MonoBehaviour {
+public class UI_Manager {
 	public static GameObject canvas;
 	public static List<MonoBehaviour> mUI_List = new List<MonoBehaviour> ();
 
@@ -25,5 +25,10 @@ public class UI_Manager : MonoBehaviour {
 	public static void Exit(MonoBehaviour mono){
 		mUI_List.Remove (mono);
 		GameObject.Destroy (mono.gameObject);
+	}
+	public static void Exit_All(){
+		for (int i = 0; i < mUI_List.Count; i++)
+			GameObject.Destroy (mUI_List [i].gameObject);
+		mUI_List.Clear ();
 	}
 }
