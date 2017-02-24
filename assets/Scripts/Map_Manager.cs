@@ -62,19 +62,20 @@ public class Map_Manager {
         while (tower_num <= 4)
         {
             //Debug.Log("##"+path_tower[tower_num].Trim('\n') + "##");
-            string[] path = path_tower[tower_num].Trim().Trim('\n').Split('\n');
+             
 
-            
+			string path_all = path_tower [tower_num].Trim ().Trim ('\n');
+			if (path_all.Length > 0) {
+				string[] path = path_all.Split('\n');
+				List<Vector3> tower_Points = new List<Vector3>();
+				for (int i = 0; i < path.Length; i++)
+				{
+					string[] point = path[i].Split(',');
 
-            List<Vector3> tower_Points = new List<Vector3>();
-            for (int i = 0; i < path.Length; i++)
-            {
-                string[] point = path[i].Split(',');
-
-                //Debug.Log(path[i]);
-                tower_Points.Add(new Vector3(int.Parse(point[0]), 0, int.Parse(point[1])));
-            }
-            /*if (tower_Points.Count > 0)
+					//Debug.Log(path[i]);
+					tower_Points.Add(new Vector3(int.Parse(point[0]), 0, int.Parse(point[1])));
+				}
+				/*if (tower_Points.Count > 0)
             {
                 for (int i = 0; i < tower_Points.Count; i++)
                 {
@@ -85,8 +86,12 @@ public class Map_Manager {
                     tower_Box.Add(tower);
                 }
             }*/
-            tower_list.Add(tower_Points);
-            tower_num++;
+				tower_list.Add(tower_Points);
+				tower_num++;
+			} else
+				return null;
+
+            
         }
         return tower_list;
     }

@@ -13,13 +13,13 @@ public class UI_Battle : UI_Base {
     public List<Enemy_Info> enemies = new List<Enemy_Info>();
     public List<GameObject> buttons=new List<GameObject>();
 	public GameObject tower_Content,base_Tower,health_Info;
-	public Text life,wave,wave_Time;
+	public Text life,wave,money,wave_Time;
     public bool isDefenceMode = true;
     public GameObject enemy_btn_list;
     public int[] enemy_count_list = new int[4];
     public GameObject [] enemy_btn_obj_list = new GameObject[4];
     public int enemy_ciked = -1;
-    public List<List<Vector3>> tower_coor_list = new List<List<Vector3>>();
+    public List<List<Vector3>> tower_coor_list = null;
 
 
     public void init(string map,List<Tower_Info> towers, List<Enemy_Info> enemies, bool isDefence){
@@ -35,8 +35,11 @@ public class UI_Battle : UI_Base {
         {
             enemy_btn_list.SetActive(true);
             Debug.Log("is attack mode!!");
+
+			Battle_Manager.total_Enemy = 0;
             for (int i = 0; i < enemies.Count; i++)
             {   
+				Battle_Manager.total_Enemy += enemies [i].number;
                 switch(enemies[i].model)
                 {
                     case "enemy1":
@@ -53,6 +56,7 @@ public class UI_Battle : UI_Base {
                         break;
                 }
             }
+			Battle_Manager.enemy_Left = Battle_Manager.total_Enemy;
             if (enemy_count_list[0] == 0)
             {
                 enemy_btn_obj_list[0].SetActive(false);
@@ -114,7 +118,9 @@ public class UI_Battle : UI_Base {
 
         switch(name)
         {
-            case "Btn_Tower":
+		case "Btn_Tower":
+			if (towers [buttons.IndexOf (obj)].money > Battle_Manager.money)
+					return;
                 Vector3 pos = tower_Content.transform.localPosition;
                 RectTransform rect = this.GetComponent<RectTransform>();
                 pos.x /= rect.rect.width;
@@ -131,6 +137,7 @@ public class UI_Battle : UI_Base {
                         pos.x = Mathf.RoundToInt(pos.x);
                         pos.z = Mathf.RoundToInt(pos.z);
                         Battle_Manager.create_Tower(pos, towers[buttons.IndexOf(obj)]);
+						Battle_Manager.money -= towers [buttons.IndexOf (obj)].money;
                         click_Btn = true;
                         tower_Content.SetActive(false);
                     }
@@ -169,6 +176,8 @@ public class UI_Battle : UI_Base {
 		}
 		if (name.Equals ("Wave"))
 			wave = obj.GetComponent<Text> ();
+		if (name.Equals ("Money"))
+			money = obj.GetComponent<Text> ();
 		if (name.Equals ("Wave_Time"))
 			wave_Time = obj.GetComponent<Text> ();
 		if (name.Equals ("Btn_Tower")) {

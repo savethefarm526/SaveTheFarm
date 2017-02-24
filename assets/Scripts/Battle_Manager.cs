@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Battle_Manager {
+	public const int BASE_LIFE=5;
+
 	public static UI_Battle ui_Battle;
 	public static List<Vector3> path;
 	public static List<Enemy_Info> enemies;
@@ -12,35 +14,44 @@ public class Battle_Manager {
 	private static float time;
 	public static bool stop;
 
+	public static int[] scores = new int[15];
+	public static int cur_Level;
+
+	public static int total_Enemy;
+	public static int enemy_Left;
+
+	public static int money;
+
     public static void init(UI_Battle ui_Battle,List<Vector3> path){
 		Battle_Manager.ui_Battle = ui_Battle;
 		Battle_Manager.path = path;
         enemies = ui_Battle.enemies;
-        if (!ui_Battle.isDefenceMode)
+		if (!ui_Battle.isDefenceMode && ui_Battle.tower_coor_list != null)
         {
             for (int j = 0; j < ui_Battle.tower_coor_list[0].Count; j++)
             {
-                create_Tower(ui_Battle.tower_coor_list[0][j], new Tower_Info("tower1", "tower1", 1, 0.8f, 2, "", "bullet", 10));
+                create_Tower(ui_Battle.tower_coor_list[0][j], new Tower_Info("tower1", "tower1", 1, 0.8f, 2, "", "bullet", 10, 0));
             }
             for (int j = 0; j < ui_Battle.tower_coor_list[1].Count; j++)
             {
-                create_Tower(ui_Battle.tower_coor_list[1][j], new Tower_Info("tower2", "tower2", 2, 0.8f, 2, "", "bullet", 10));
+                create_Tower(ui_Battle.tower_coor_list[1][j], new Tower_Info("tower2", "tower2", 2, 0.8f, 2, "", "bullet", 10, 0));
             }
             for (int j = 0; j < ui_Battle.tower_coor_list[2].Count; j++)
             {
-                create_Tower(ui_Battle.tower_coor_list[2][j], new Tower_Info("tower3", "tower3", 3, 0.8f, 3, "", "bullet", 10));
+                create_Tower(ui_Battle.tower_coor_list[2][j], new Tower_Info("tower3", "tower3", 3, 0.8f, 3, "", "bullet", 10, 0));
             }
             for (int j = 0; j < ui_Battle.tower_coor_list[3].Count; j++)
             {
-                create_Tower(ui_Battle.tower_coor_list[3][j], new Tower_Info("tower4", "tower4", 3, 0.8f, 5, "", "bullet", 10));
+                create_Tower(ui_Battle.tower_coor_list[3][j], new Tower_Info("tower4", "tower4", 3, 0.8f, 5, "", "bullet", 10, 0));
             }
 
 
         }
 
         cur_Wave = 0;
-		base_Life = 1500;
+		base_Life = BASE_LIFE;
 		time = 0;
+		money = 500;
 
         for (int i = 0; i < enemy_List.Count; i++)
         {
@@ -48,6 +59,11 @@ public class Battle_Manager {
         }
         enemy_List.Clear();
         stop = false;
+
+		ui_Battle.money.text = "Money: " + money;
+
+		for (int i = 0; i < 15; i++)
+			scores [i] = 0;
 	}
     
 
@@ -55,7 +71,19 @@ public class Battle_Manager {
 		if (Battle_Manager.base_Life <= 1) {
 			Battle_Manager.base_Life = 0;
 			stop = true;
-			UI_Manager.Enter<UI_Result> ().init (false);
+			if (!Battle_Manager.ui_Battle.isDefenceMode) {
+				float percentage = (float)Battle_Manager.enemy_Left / Battle_Manager.total_Enemy;
+				if (percentage >= 2.0 / 3)
+					scores [cur_Level - 1] = 3;
+				else if (percentage >= 1.0 / 3 && scores[cur_Level-1]<2)
+					scores [cur_Level - 1] = 2;
+				else if(scores[cur_Level-1]<1)
+					scores [cur_Level - 1] = 1;
+			}
+			if (ui_Battle.isDefenceMode)
+				UI_Manager.Enter<UI_Result> ().init (false);
+			else
+				UI_Manager.Enter<UI_Result> ().init (true);
 			ui_Battle.tower_Content.SetActive (false);
 		} else
 			Battle_Manager.base_Life--;
@@ -113,7 +141,8 @@ public class Battle_Manager {
 						cur_Wave++;
 						wave_Time = 5;
 						ui_Battle.wave_Decrease (wave_Time);
-						ui_Battle.wave.text = "Wave number: " + cur_Wave;
+						if(ui_Battle.isDefenceMode)
+							ui_Battle.wave.text = "Wave number: " + cur_Wave;
 					} else if (ui_Battle.isDefenceMode)
                     { // next wave is false, in current wave, creating enemy, wava_time = 0
                         Enemy enemy = Enemy_Manager.create(enemies[0], path);
@@ -123,6 +152,8 @@ public class Battle_Manager {
                         {
                             enemies.RemoveAt(0);
                             next_Wave = true;
+
+							money += 10;
                         }
                         else // enemy creating
                             enemies[0].number--;
@@ -148,9 +179,20 @@ public class Battle_Manager {
 
 			if (base_Life > 0 && enemies.Count == 0 && enemy_List.Count == 0) {
 				stop = true;
+				if (base_Life == BASE_LIFE)
+					scores [cur_Level-1] = 3;
+				else if (base_Life >= 0.5 * BASE_LIFE && scores [cur_Level-1] < 3)
+					scores [cur_Level-1] = 2;
+				else
+					scores [cur_Level-1] = 1;
 				ui_Battle.tower_Content.SetActive (false);
-				UI_Manager.Enter<UI_Result> ().init (true);
+				if (ui_Battle.isDefenceMode)
+					UI_Manager.Enter<UI_Result> ().init (true);
+				else
+					UI_Manager.Enter<UI_Result> ().init (false);
 			}
+
+			ui_Battle.money.text = "Money: " + money;
 		}
 	}
 
