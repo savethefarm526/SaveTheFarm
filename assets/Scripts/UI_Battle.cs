@@ -93,8 +93,7 @@ public class UI_Battle : UI_Base {
             {
                 if (enemy_btn_obj_list[i].activeSelf)
                 {
-                    enemy_btn_obj_list[i].GetComponentInChildren<Button>().enabled = false;
-                    
+                    enemy_btn_obj_list[i].GetComponent<Button>().interactable = false;
                 }
             }
                 
@@ -192,18 +191,22 @@ public class UI_Battle : UI_Base {
         if (name.Equals("enemy1"))
         {
             enemy_btn_obj_list[0] = obj;
+            enemy_btn_obj_list[0].GetComponent<Button>().interactable = false;
         }
         if (name.Equals("enemy2"))
         {
             enemy_btn_obj_list[1] = obj;
+            enemy_btn_obj_list[1].GetComponent<Button>().interactable = false;
         }
         if (name.Equals("enemy3"))
         {
             enemy_btn_obj_list[2] = obj;
+            enemy_btn_obj_list[2].GetComponent<Button>().interactable = false;
         }
         if (name.Equals("enemy4"))
         {
             enemy_btn_obj_list[3] = obj;
+            enemy_btn_obj_list[3].GetComponent<Button>().interactable = false;
         }
     }
 	// Use this for initialization
@@ -274,25 +277,16 @@ public class UI_Battle : UI_Base {
 				Camera.main.fieldOfView *= 0.9f;
 		}
 
-
-
-
-
-
-
-
-		Battle_Manager.mUpdate ();
         
-
         if (!this.isDefenceMode) // attack mode, set enemy btn enable or disable
         {
-            if (Battle_Manager.wave_Time <= 0 && enemy_ciked == -1)
+            if (Battle_Manager.wave_Time <= 0 && enemy_ciked == -1 && !Battle_Manager.beforeCountDown)
             {
                 for (int i = 0; i < 4; i++)
                 {
                     if (enemy_count_list[i] > 0)
                     {
-                        enemy_btn_obj_list[i].GetComponentInChildren<Button>().enabled = true;
+                        enemy_btn_obj_list[i].GetComponent<Button>().interactable = true;
                     }
                 }
             }
@@ -300,7 +294,7 @@ public class UI_Battle : UI_Base {
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    enemy_btn_obj_list[i].GetComponentInChildren<Button>().enabled = false;
+                    enemy_btn_obj_list[i].GetComponent<Button>().interactable = false;
                 }
             }
 
@@ -310,10 +304,10 @@ public class UI_Battle : UI_Base {
                 tmp_text.text = "Enemy" + (1 + i) + ", left: " + enemy_count_list[i];
             }
         }
-        
 
 
-        
+        Battle_Manager.mUpdate();
+
         if (isDefenceMode) // defence mode
         {
             if (click_Btn == false &&

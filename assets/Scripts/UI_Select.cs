@@ -26,59 +26,124 @@ public class UI_Select : UI_Base {
 	public override void node_Asset(string name,GameObject obj){
 		if (name.Split (' ')[0].Equals("Star")) {
 			int level = int.Parse (name.Split (' ') [1]);
-			Debug.Log (level);
+			// Debug.Log (level);
 			levels [level-1] = obj.GetComponent<Text> ();
 			levels [level-1].text = "Star: " + Battle_Manager.scores [level-1] + "/3";
 		}
+        if (name.Split(' ')[0].Equals("level"))
+        {
+            int level = int.Parse(name.Split(' ')[1]);
+            if (level > 1 && Battle_Manager.scores[level - 2] == 0)
+            {
+                obj.GetComponent<Button>().interactable = false;
+            }
+                
+        }
 	}
 	public void init_Battle(string level){
-		Battle_Manager.cur_Level = int.Parse(level);
+        int lv = int.Parse(level);
+        Battle_Manager.cur_Level = lv;
         
         List<Tower_Info> towers = new List<Tower_Info>();
-
-        towers.Add(new Tower_Info("tower1", "tower1", 1, 0.8f, 2, "", "bullet", 10, 15));
-        if (int.Parse(level) > 1)
-            towers.Add(new Tower_Info("tower2", "tower2", 2, 0.8f, 2, "", "bullet", 10, 18));
-        if (int.Parse(level) > 2)
-            towers.Add(new Tower_Info("tower3", "tower3", 3, 0.8f, 3, "", "bullet", 10, 20));
-        if (int.Parse(level) > 3)
-            towers.Add(new Tower_Info("tower4", "tower4", 3, 0.8f, 5, "", "bullet", 10, 23));
-
-
         List<Enemy_Info> enemies = new List<Enemy_Info>();
-        
-        switch(level)
+
+        /*
+        towers.Add(new Tower_Info("tower1", "tower1", 1, 0.8f, 2, "", "bullet", 10, 15));
+        towers.Add(new Tower_Info("tower2", "tower2", 2, 0.8f, 2, "", "bullet", 10, 18));
+        towers.Add(new Tower_Info("tower3", "tower3", 3, 0.8f, 3, "", "bullet", 10, 20));
+        towers.Add(new Tower_Info("tower4", "tower4", 3, 0.8f, 5, "", "bullet", 10, 23));
+
+        enemies.Add(new Enemy_Info("enemy1", 2, 5, 10, 5));
+        enemies.Add(new Enemy_Info("enemy2", 5, 2, 10, 6));
+        enemies.Add(new Enemy_Info("enemy3", 10, 1, 5, 7));
+        enemies.Add(new Enemy_Info("enemy4", 20, 1, 3, 10));
+        */
+
+
+        int star1 = lv > 1 ? Battle_Manager.scores[lv - 2] : 0;
+        int star2 = star1 / 2;
+        int star3 = star1 / 3;
+        switch (level)
         {
-		case "1":
-				enemies.Add (new Enemy_Info ("enemy1", 2, 5, 10, 5));
-//				Battle_Manager.total_Enemy += 10;
-                enemies.Add(new Enemy_Info("enemy2", 5, 2, 10, 6));
-                enemies.Add(new Enemy_Info("enemy1", 2, 5, 10, 5));
-                enemies.Add(new Enemy_Info("enemy2", 5, 2, 10, 6));
-                enemies.Add(new Enemy_Info("enemy1", 2, 5, 10, 5));
-                enemies.Add(new Enemy_Info("enemy2", 5, 2, 10, 6));
-                enemies.Add(new Enemy_Info("enemy1", 2, 5, 10, 5));
-                enemies.Add(new Enemy_Info("enemy3", 10, 1, 5, 7));
-                enemies.Add(new Enemy_Info("enemy4", 20, 1, 3, 10));
-                enemies.Add(new Enemy_Info("enemy4", 20, 1, 3, 10));
-                enemies.Add(new Enemy_Info("enemy4", 20, 1, 3, 10));
-                enemies.Add(new Enemy_Info("enemy2", 5, 2, 10, 6));
-                enemies.Add(new Enemy_Info("enemy1", 2, 5, 10, 5));
-                enemies.Add(new Enemy_Info("enemy2", 5, 2, 10, 6));
-                enemies.Add(new Enemy_Info("enemy3", 10, 1, 5, 7));
-                enemies.Add(new Enemy_Info("enemy4", 20, 1, 3, 10));
+		    case "1":
+                setTowers(towers, 1, 0, 0, 0);
                 break;
             case "2":
-                enemies.Add(new Enemy_Info("enemy3", 10, 1, 5, 7));
-                enemies.Add(new Enemy_Info("enemy4", 20, 1, 3, 10));
+                setEnemies(enemies, 2 + star3, 0, 0, 0);
+                break;
+            case "3":
+                setTowers(towers, 1, 1, star3, 0);
+                break;
+            case "4":
+                setEnemies(enemies, 2 + star3, 1, 0, 0);
+                break;
+            case "5":
+                setTowers(towers, 1, 1, 1, star3);
+                break;
+            case "6":
+                setEnemies(enemies, 2, 1 + star3, 1, 0);
+                break;
+            case "7":
+                setTowers(towers, star3, 1, 1, star3);
+                break;
+            case "8":
+                setEnemies(enemies, 1 + star3, 1, 1, 1);
+                break;
+            case "9":
+                setTowers(towers, 1, star3, star3, 1);
+                break;
+            case "10":
+                setEnemies(enemies, 1 + star3, 0, 0, 1);
+                break;
+            case "11":
+                setTowers(towers, 1, star3, 1, star3);
+                break;
+            case "12":
+                setEnemies(enemies, 2, star3, 1, 2);
+                break;
+            case "13":
+                setTowers(towers, star3, 1, star3, star3);
+                break;
+            case "14":
+                setEnemies(enemies, 2 + star3, star2, 2, 1);
+                break;
+            case "15":
+                setTowers(towers, star3, star3, star3, star3);
                 break;
         }
 
-       
+        
+
+        
+
+        if (lv % 2 == 1)
+        {
+            isDefence = true;
+            setEnemies(enemies, 1, 1,1,1);
+        }
+            
+        else isDefence = false;
 
         
         UI_Manager.Enter<UI_Battle>().init(level, towers, enemies, isDefence);
         
 		
 	}
+
+
+    public void setTowers(List<Tower_Info> towers, int num1, int num2, int num3, int num4)
+    {
+        if (num1 > 0) towers.Add(new Tower_Info("tower1", "tower1", 1, 0.8f, 2, "", "bullet", 10, 15));
+        if (num2 > 0) towers.Add(new Tower_Info("tower2", "tower2", 2, 0.8f, 2, "", "bullet", 10, 18));
+        if (num3 > 0) towers.Add(new Tower_Info("tower3", "tower3", 3, 0.8f, 3, "", "bullet", 10, 20));
+        if (num4 > 0) towers.Add(new Tower_Info("tower4", "tower4", 3, 0.8f, 5, "", "bullet", 10, 23));
+    }
+
+    public void setEnemies(List<Enemy_Info> enemies, int num1, int num2, int num3, int num4)
+    {
+        for (int i = 0; i < num1; i++) enemies.Add(new Enemy_Info("enemy1", 2, 5, 10, 5));       
+        for (int i = 0; i < num2; i++) enemies.Add(new Enemy_Info("enemy2", 5, 2, 10, 6));
+        for (int i = 0; i < num3; i++) enemies.Add(new Enemy_Info("enemy3", 10, 1, 5, 7));
+        for (int i = 0; i < num4; i++) enemies.Add(new Enemy_Info("enemy4", 20, 1, 3, 10));
+    }
 }

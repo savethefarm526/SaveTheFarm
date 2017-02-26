@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Battle_Manager {
-	public const int BASE_LIFE=5;
+	public const int BASE_LIFE=50;
 
 	public static UI_Battle ui_Battle;
 	public static List<Vector3> path;
@@ -14,13 +14,15 @@ public class Battle_Manager {
 	private static float time;
 	public static bool stop;
 
-	public static int[] scores = new int[15];
+	public static int[] scores = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	public static int cur_Level;
 
 	public static int total_Enemy;
 	public static int enemy_Left;
 
 	public static int money;
+
+    public static bool beforeCountDown = true;
 
     public static void init(UI_Battle ui_Battle,List<Vector3> path){
 		Battle_Manager.ui_Battle = ui_Battle;
@@ -61,9 +63,7 @@ public class Battle_Manager {
         stop = false;
 
 		ui_Battle.money.text = "Money: " + money;
-
-		for (int i = 0; i < 15; i++)
-			scores [i] = 0;
+        
 	}
     
 
@@ -129,9 +129,7 @@ public class Battle_Manager {
 		if (stop==false) {
 			if (enemies.Count > 0) {
 				time += Time.deltaTime;
-//				if (cur_Wave > 1 && enemy_List.Count == 0)
-//					time += Time.deltaTime*2;
-				if (time >= 1) { // decrese time
+				if (time >= 1 && ui_Battle.isDefenceMode || time >= 0 && !ui_Battle.isDefenceMode) { // decrese time
 					time--;
 					if (wave_Time > 0) { // count down from 5 to 0
 						wave_Time--;
@@ -139,7 +137,8 @@ public class Battle_Manager {
 					} else if (next_Wave==true) { // start next wave and start count down from 5, wava_time = 0
 						next_Wave = false;
 						cur_Wave++;
-						wave_Time = 5;
+                        beforeCountDown = false;
+                        wave_Time = 5;
 						ui_Battle.wave_Decrease (wave_Time);
 						if(ui_Battle.isDefenceMode)
 							ui_Battle.wave.text = "Wave number: " + cur_Wave;
@@ -179,12 +178,15 @@ public class Battle_Manager {
 
 			if (base_Life > 0 && enemies.Count == 0 && enemy_List.Count == 0) {
 				stop = true;
-				if (base_Life == BASE_LIFE)
-					scores [cur_Level-1] = 3;
-				else if (base_Life >= 0.5 * BASE_LIFE && scores [cur_Level-1] < 3)
-					scores [cur_Level-1] = 2;
-				else
-					scores [cur_Level-1] = 1;
+                if (ui_Battle.isDefenceMode)
+                {
+                    if (base_Life == BASE_LIFE)
+                        scores[cur_Level - 1] = 3;
+                    else if (base_Life >= 0.5 * BASE_LIFE && scores[cur_Level - 1] < 3)
+                        scores[cur_Level - 1] = 2;
+                    else
+                        scores[cur_Level - 1] = 1;
+                }
 				ui_Battle.tower_Content.SetActive (false);
 				if (ui_Battle.isDefenceMode)
 					UI_Manager.Enter<UI_Result> ().init (true);
@@ -224,6 +226,7 @@ public class Battle_Manager {
                     
                     next_Wave = true;
                     ui_Battle.enemy_ciked = -1; // reset 
+                    beforeCountDown = true;
                 }
                 else // enemy creating
                     enemies[i].number--;
