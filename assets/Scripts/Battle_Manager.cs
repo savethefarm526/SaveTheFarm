@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Battle_Manager {
-	public const int BASE_LIFE=50;
+	public const int BASE_LIFE=10;
 
 	public static UI_Battle ui_Battle;
 	public static List<Vector3> path;

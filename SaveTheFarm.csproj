@@ -73,12 +73,17 @@
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.iOS.Extensions.Xcode">
+      <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.iOS.Extensions.Common">
+      <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Common.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="assets\Scripts\Battle_Manager.cs" />
     <Compile Include="assets\Scripts\Bullet.cs" />
     <Compile Include="assets\Scripts\Bullet_Manager.cs" />
-    <Compile Include="assets\Scripts\Create_Path.cs" />
     <Compile Include="assets\Scripts\Enemy.cs" />
     <Compile Include="assets\Scripts\Enemy_Info.cs" />
     <Compile Include="assets\Scripts\Enemy_Manager.cs" />

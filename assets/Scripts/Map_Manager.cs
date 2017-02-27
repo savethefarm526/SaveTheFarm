@@ -65,33 +65,17 @@ public class Map_Manager {
              
 
 			string path_all = path_tower [tower_num].Trim ().Trim ('\n');
-			if (path_all.Length > 0) {
-				string[] path = path_all.Split('\n');
-				List<Vector3> tower_Points = new List<Vector3>();
-				for (int i = 0; i < path.Length; i++)
-				{
-					string[] point = path[i].Split(',');
-
-					//Debug.Log(path[i]);
-					tower_Points.Add(new Vector3(int.Parse(point[0]), 0, int.Parse(point[1])));
-				}
-				/*if (tower_Points.Count > 0)
-            {
-                for (int i = 0; i < tower_Points.Count; i++)
+            List<Vector3> tower_Points = new List<Vector3>();
+            if (path_all.Length > 0) {
+                string[] path = path_all.Split('\n');
+                for (int i = 0; i < path.Length; i++)
                 {
-                    GameObject tower = Resources.Load<GameObject>("Model/tower" + tower_num);
-                    tower = GameObject.Instantiate(tower);
-                    Vector3 pos = tower_Points[i];
-                    tower.transform.localPosition = pos;
-                    tower_Box.Add(tower);
+                    string[] point = path[i].Split(',');
+                    tower_Points.Add(new Vector3(int.Parse(point[0]), 0, int.Parse(point[1])));
                 }
-            }*/
-				tower_list.Add(tower_Points);
-				tower_num++;
-			} else
-				return null;
-
-            
+            }
+			tower_list.Add(tower_Points);
+			tower_num++;
         }
         return tower_list;
     }
