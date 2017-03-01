@@ -10,6 +10,7 @@ public class Tower : MonoBehaviour
 	public string bullet;
 	public float bullet_Spd;
 	public string animation;
+    public string name;
 	private float time=0;
 
 	public void init (Tower_Info info)
@@ -18,6 +19,7 @@ public class Tower : MonoBehaviour
 		this.period = info.period;
 		this.range = info.range;
 		this.bullet = info.bullet;
+        this.name = info.name;
 		this.bullet_Spd = info.bullet_spd;
 		this.animation = info.animation;
 	}

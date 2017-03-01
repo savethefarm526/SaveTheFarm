@@ -32,19 +32,19 @@ public class Battle_Manager {
         {
             for (int j = 0; j < ui_Battle.tower_coor_list[0].Count; j++)
             {
-                create_Tower(ui_Battle.tower_coor_list[0][j], new Tower_Info("tower1", "tower1", 1, 0.8f, 2, "", "bullet", 10, 0));
+                create_Tower(ui_Battle.tower_coor_list[0][j], new Tower_Info("tower1", "enemy1", 1, 0.8f, 2, "", "bullet", 10, 0));
             }
             for (int j = 0; j < ui_Battle.tower_coor_list[1].Count; j++)
             {
-                create_Tower(ui_Battle.tower_coor_list[1][j], new Tower_Info("tower2", "tower2", 2, 0.8f, 2, "", "bullet", 10, 0));
+                create_Tower(ui_Battle.tower_coor_list[1][j], new Tower_Info("tower2", "enemy2", 2, 0.8f, 2, "", "bullet", 10, 0));
             }
             for (int j = 0; j < ui_Battle.tower_coor_list[2].Count; j++)
             {
-                create_Tower(ui_Battle.tower_coor_list[2][j], new Tower_Info("tower3", "tower3", 3, 0.8f, 3, "", "bullet", 10, 0));
+                create_Tower(ui_Battle.tower_coor_list[2][j], new Tower_Info("tower3", "enemy3", 3, 0.8f, 3, "", "bullet", 10, 0));
             }
             for (int j = 0; j < ui_Battle.tower_coor_list[3].Count; j++)
             {
-                create_Tower(ui_Battle.tower_coor_list[3][j], new Tower_Info("tower4", "tower4", 3, 0.8f, 5, "", "bullet", 10, 0));
+                create_Tower(ui_Battle.tower_coor_list[3][j], new Tower_Info("tower4", "enemy4", 3, 0.8f, 5, "", "bullet", 10, 0));
             }
 
 
@@ -90,7 +90,7 @@ public class Battle_Manager {
 		ui_Battle.life.text = "Health left: " + base_Life;
 	}
 	public static void create_Tower(Vector3 pos,Tower_Info info){
-		Tower tower = Tower_Manager.create (info.name).AddComponent<Tower>();
+		Tower tower = Tower_Manager.create (info.model).AddComponent<Tower>();
 		tower.transform.localPosition = pos;
 		tower.init (info);
 		tower_List.Add (tower);
@@ -198,24 +198,32 @@ public class Battle_Manager {
 		}
 	}
 
-	public static bool wrong_Pos(Vector3 pos){
+	public static bool wrong_Pos(Vector3 pos) {
 		for (int i = 0; i < Map_Manager.path_Box.Count; i++) {
 			if (Vector3.Distance (pos, Map_Manager.path_Box [i].transform.localPosition) < 0.1f)
 				return true;
 		}
-		for (int i = 0; i < tower_List.Count; i++) {
-			if (pos == tower_List [i].transform.localPosition)
-				return true;
-		}
+		
 		return false;
 	}
+
+    public static int upgrade_Tower(Vector3 pos)
+    {
+        for (int i = 0; i < tower_List.Count; i++)
+        {
+            if (pos == tower_List[i].transform.localPosition)
+                return i;
+        }
+        return -1;
+    }
 
     public static void enemy_wave_create(int type)
     {
         Debug.Log("wave!!");
         for (int i = 0; i < enemies.Count; i++)
         {
-            if (enemies[i].model.Equals("enemy"+(type+1)))
+            if (enemies[i].model.Equals("enemy"+(type+1)) ||
+                enemies[i].model.Equals("tower" + (type + 1)))
             {   
                 Enemy enemy = Enemy_Manager.create(enemies[i], path);
                 ui_Battle.bind(enemy);

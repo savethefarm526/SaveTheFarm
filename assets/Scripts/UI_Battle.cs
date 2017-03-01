@@ -20,14 +20,19 @@ public class UI_Battle : UI_Base {
     public GameObject [] enemy_btn_obj_list = new GameObject[4];
     public int enemy_ciked = -1;
     public List<List<Vector3>> tower_coor_list = null;
-
+    public int BTN = 150;
+    private int BTN_TEXT_SIZE = 40;
+    private int TITLE_SIZE = 70;
+    public GameObject upgrade_btn;
+    public int old_tower_index = -1;
 
     public void init(string map,List<Tower_Info> towers, List<Enemy_Info> enemies, bool isDefence){
 		this.towers = towers;
         this.enemies = enemies;
         this.isDefenceMode = isDefence;
         Camera.main.transform.localPosition = new Vector3 (0, 10, 0);
-		Camera.main.fieldOfView = 70;
+        //Camera.main.transform.localPosition = new Vector3 (0, 9, -6);
+        Camera.main.fieldOfView = 70;
         if (!isDefenceMode)
             tower_coor_list = Map_Manager.get_tower(map);
         Battle_Manager.init(this, Map_Manager.get_Path(map));
@@ -42,16 +47,16 @@ public class UI_Battle : UI_Base {
 				Battle_Manager.total_Enemy += enemies [i].number;
                 switch(enemies[i].model)
                 {
-                    case "enemy1":
+                    case "tower1":
                         enemy_count_list[0]++;
                         break;
-                    case "enemy2":
+                    case "tower2":
                         enemy_count_list[1]++;
                         break;
-                    case "enemy3":
+                    case "tower3":
                         enemy_count_list[2]++;
                         break;
-                    case "enemy4":
+                    case "tower4":
                         enemy_count_list[3]++;
                         break;
                 }
@@ -63,7 +68,7 @@ public class UI_Battle : UI_Base {
                 for (int i = 1; i < 4; i++)
                     enemy_btn_obj_list[i].transform.localPosition = 
                         new Vector3(enemy_btn_obj_list[i].transform.localPosition.x, 
-                        enemy_btn_obj_list[i].transform.localPosition.y + 60, 
+                        enemy_btn_obj_list[i].transform.localPosition.y + BTN, 
                         enemy_btn_obj_list[i].transform.localPosition.z);
              }
             if (enemy_count_list[1] == 0)
@@ -72,7 +77,7 @@ public class UI_Battle : UI_Base {
                 for (int i = 2; i < 4; i++)
                     enemy_btn_obj_list[i].transform.localPosition = 
                         new Vector3(enemy_btn_obj_list[i].transform.localPosition.x, 
-                        enemy_btn_obj_list[i].transform.localPosition.y + 60, 
+                        enemy_btn_obj_list[i].transform.localPosition.y + BTN, 
                         enemy_btn_obj_list[i].transform.localPosition.z);
             }
             if (enemy_count_list[2] == 0)
@@ -81,7 +86,7 @@ public class UI_Battle : UI_Base {
                 for (int i = 3; i < 4; i++)
                     enemy_btn_obj_list[i].transform.localPosition = 
                         new Vector3(enemy_btn_obj_list[i].transform.localPosition.x, 
-                        enemy_btn_obj_list[i].transform.localPosition.y + 60, 
+                        enemy_btn_obj_list[i].transform.localPosition.y + BTN, 
                         enemy_btn_obj_list[i].transform.localPosition.z);
             }
             if (enemy_count_list[3] == 0)
@@ -117,8 +122,42 @@ public class UI_Battle : UI_Base {
 
         switch(name)
         {
-		case "Btn_Tower":
-			if (towers [buttons.IndexOf (obj)].money > Battle_Manager.money)
+
+            case "Btn_Upgrade":
+                Tower_Info new_tower_info = Main.getNewTowerInfo(Battle_Manager.tower_List[old_tower_index].name);
+                if (new_tower_info.money > Battle_Manager.money) return;
+                Vector3 pos_up = upgrade_btn.transform.localPosition;
+
+                RectTransform rect_up = this.GetComponent<RectTransform>();
+                pos_up.x /= rect_up.rect.width;
+                pos_up.y /= rect_up.rect.height;
+                pos_up.x += 0.5f;
+                pos_up.y += 0.5f;
+                Ray ray_up = Camera.main.ViewportPointToRay(pos_up);
+                RaycastHit[] hits_up = Physics.RaycastAll(ray_up);
+                for (int i = 0; i < hits_up.Length; i++)
+                {
+                    if (hits_up[i].collider.name == "map_show")
+                    {
+                        pos_up = hits_up[i].point;
+                        pos_up.x = Mathf.RoundToInt(pos_up.x);
+                        pos_up.z = Mathf.RoundToInt(pos_up.z);
+                        GameObject t = Battle_Manager.tower_List[old_tower_index].gameObject;
+                        Battle_Manager.tower_List.RemoveAt(old_tower_index);
+                        GameObject.Destroy(t);
+                        Battle_Manager.create_Tower(pos_up, new_tower_info);
+                        Battle_Manager.money -= new_tower_info.money;
+                        old_tower_index = -1;
+                        click_Btn = true;
+                        upgrade_btn.SetActive(false);
+
+                    }
+                }
+                
+                break;
+
+            case "Btn_Tower":
+			    if (towers [buttons.IndexOf (obj)].money > Battle_Manager.money)
 					return;
                 Vector3 pos = tower_Content.transform.localPosition;
                 RectTransform rect = this.GetComponent<RectTransform>();
@@ -163,20 +202,60 @@ public class UI_Battle : UI_Base {
 		
 	}
 	public override void node_Asset(string name,GameObject obj){
-		if (name.Equals ("Life"))
-			life = obj.GetComponent<Text> ();
+		
 		if (name.Equals ("Tower_Info")) {
 			obj.SetActive (false);
 			tower_Content = obj;
 		}
+        
+        if (name.Equals("Btn_Upgrade"))
+        {
+            obj.SetActive(false);
+            upgrade_btn = obj;
+        }
 		if (name.Equals ("Health")) {
 			obj.SetActive (false);
 			health_Info = obj;
 		}
-		if (name.Equals ("Wave"))
-			wave = obj.GetComponent<Text> ();
+
+        if (name.Equals("status"))
+        {
+            Image status = obj.GetComponent<Image>();
+            RectTransform rectTransform = status.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(Screen.width * 1.0f, Screen.height / 7f);
+            rectTransform.localPosition = new Vector3(0, Screen.height / 2f-rectTransform.sizeDelta.y/2f, 0);
+        }
+        if (name.Equals("Life"))
+        {
+            life = obj.GetComponent<Text>();
+            Text tx = life.GetComponentInChildren<Text>();
+            tx.fontSize = TITLE_SIZE;
+            RectTransform rectTransform = life.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(Screen.width/3f, Screen.height / 6f);
+            rectTransform.localPosition = new Vector3(-Screen.width / 4f, 0, 0);
+        }
+            
+        if (name.Equals ("Wave"))
+        {
+            wave = obj.GetComponent<Text>();
+            Text tx = wave.GetComponentInChildren<Text>();
+            tx.fontSize = TITLE_SIZE;
+            RectTransform rectTransform = wave.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(Screen.width/3f, Screen.height / 6f);
+            rectTransform.localPosition = new Vector3(Screen.width / 4f, 0, 0);
+        }
+			
 		if (name.Equals ("Money"))
-			money = obj.GetComponent<Text> ();
+        {
+            money = obj.GetComponent<Text>();
+            Text tx = money.GetComponentInChildren<Text>();
+            tx.fontSize = TITLE_SIZE;
+            RectTransform rectTransform = money.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(Screen.width/3f, Screen.height / 6f);
+            rectTransform.localPosition = new Vector3(0, 0, 0);
+            
+        }
+			
 		if (name.Equals ("Wave_Time"))
 			wave_Time = obj.GetComponent<Text> ();
 		if (name.Equals ("Btn_Tower")) {
@@ -185,6 +264,10 @@ public class UI_Battle : UI_Base {
 		}
         if (name.Equals ("Enemy_List"))
         {
+            Image list = obj.GetComponent<Image>();
+            RectTransform rectTransform = list.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(BTN*1.0f, BTN * 1.0f);
+            rectTransform.localPosition = new Vector3(BTN/2f-Screen.width/2f, BTN*1.0f, 0);
             obj.SetActive(false);
             enemy_btn_list = obj;
         }
@@ -216,7 +299,7 @@ public class UI_Battle : UI_Base {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.touchCount >= 2) {
+		/*if (Input.touchCount >= 2) {
 			if (pre_Touch_Pos != Vector3.zero)
 				pre_Touch_Pos = Vector3.zero;
 			Touch touch1 = Input.GetTouch (0);
@@ -277,7 +360,7 @@ public class UI_Battle : UI_Base {
 				Camera.main.fieldOfView *= 0.9f;
 		}
 
-        
+        */
         if (!this.isDefenceMode) // attack mode, set enemy btn enable or disable
         {
             if (Battle_Manager.wave_Time <= 0 && enemy_ciked == -1 && !Battle_Manager.beforeCountDown)
@@ -301,7 +384,7 @@ public class UI_Battle : UI_Base {
             for (int i = 0; i < 4; i++)
             {
                 Text tmp_text = enemy_btn_obj_list[i].transform.FindChild("Text").GetComponents<Text>()[0];
-                tmp_text.text = "Enemy" + (1 + i) + ", left: " + enemy_count_list[i];
+                tmp_text.text = "Attacker " + (1 + i) + "\n"+ "left: " + enemy_count_list[i];
             }
         }
 
@@ -310,9 +393,11 @@ public class UI_Battle : UI_Base {
 
         if (isDefenceMode) // defence mode
         {
+            
             if (click_Btn == false &&
             Battle_Manager.stop == false &&
-            ((Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Canceled) || Input.GetMouseButtonUp(0)))
+            ((Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Canceled) ||
+            Input.GetMouseButtonUp(0)))
             {
                 if (drag)
                     drag = false;
@@ -320,11 +405,19 @@ public class UI_Battle : UI_Base {
                 {
                     if (tower_Content.activeSelf)
                     {
-                        if (EventSystem.current.IsPointerOverGameObject() == true) // tower_btn has been clicked
+                        if (EventSystem.current.IsPointerOverGameObject() == false) // tower_btn has been clicked
                         {
                             tower_Content.SetActive(false);
+                            
                         }
-
+                    } else if (upgrade_btn.activeSelf)
+                    {
+                        
+                        if (EventSystem.current.IsPointerOverGameObject() == false) // tower_btn has been clicked
+                        {
+                            upgrade_btn.SetActive(false);
+                            old_tower_index = -1;
+                        }
                     }
                     else
                     { // change tower_content from false to true to show  all available tower_btn
@@ -349,7 +442,19 @@ public class UI_Battle : UI_Base {
                                 pos = hits[i].point;
                                 pos.x = Mathf.RoundToInt(pos.x);
                                 pos.z = Mathf.RoundToInt(pos.z);
-                                if (Battle_Manager.wrong_Pos(pos) == false)
+                                
+                                if ((old_tower_index = Battle_Manager.upgrade_Tower(pos)) != -1)
+                                { string name = Battle_Manager.tower_List[old_tower_index].name;
+                                    if (name.Equals("tower1_3") || 
+                                        name.Equals("tower2_3") || 
+                                        name.Equals("tower3_3") || 
+                                        name.Equals("tower4_3")) return;
+                                    upgrade_btn.SetActive(true);
+                                    upgrade_btn.transform.localPosition = btn_pos;
+                                    return;
+
+                                }
+                                else if (Battle_Manager.wrong_Pos(pos) == false)
                                 {
                                     tower_Content.SetActive(true);
                                     tower_Content.transform.localPosition = btn_pos;
