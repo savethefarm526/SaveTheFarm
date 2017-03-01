@@ -68,11 +68,9 @@ public class UI_Start : UI_Base {
         }
 
             
-		if (name.Equals ("Btn_Quit"))
-        {
-            //UI_Manager.Exit(this);
-            Application.Quit();
-        }
-			
+		if (name.Equals ("Btn_Quit")) {
+			UI_Manager.Exit (this);
+			Application.Quit ();
+		}
 	}
 }

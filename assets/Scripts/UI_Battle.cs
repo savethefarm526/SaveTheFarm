@@ -24,87 +24,86 @@ public class UI_Battle : UI_Base {
     private int BTN_TEXT_SIZE = 40;
     private int TITLE_SIZE = 70;
     public GameObject upgrade_btn;
+	public GameObject btn_ACE;
+	public bool use_ACE = false;
+	public int ACE_Buffer_Time = 0;
+	public Text Buffer_Time;
+	public GameObject ACE;
     public int old_tower_index = -1;
+	public float time = 0;
 
     public void init(string map,List<Tower_Info> towers, List<Enemy_Info> enemies, bool isDefence){
 		this.towers = towers;
         this.enemies = enemies;
         this.isDefenceMode = isDefence;
+        click_Btn = false;
         Camera.main.transform.localPosition = new Vector3 (0, 10, 0);
         //Camera.main.transform.localPosition = new Vector3 (0, 9, -6);
         Camera.main.fieldOfView = 70;
         if (!isDefenceMode)
             tower_coor_list = Map_Manager.get_tower(map);
         Battle_Manager.init(this, Map_Manager.get_Path(map));
-        if (!isDefenceMode)
-        {
-            enemy_btn_list.SetActive(true);
-            Debug.Log("is attack mode!!");
+		if (!isDefenceMode) {
+			enemy_btn_list.SetActive (true);
+			Debug.Log ("is attack mode!!");
 
 			Battle_Manager.total_Enemy = 0;
-            for (int i = 0; i < enemies.Count; i++)
-            {   
+			for (int i = 0; i < enemies.Count; i++) {   
 				Battle_Manager.total_Enemy += enemies [i].number;
-                switch(enemies[i].model)
-                {
-                    case "tower1":
-                        enemy_count_list[0]++;
-                        break;
-                    case "tower2":
-                        enemy_count_list[1]++;
-                        break;
-                    case "tower3":
-                        enemy_count_list[2]++;
-                        break;
-                    case "tower4":
-                        enemy_count_list[3]++;
-                        break;
-                }
-            }
+				switch (enemies [i].model) {
+				case "tower1":
+					enemy_count_list [0]++;
+					break;
+				case "tower2":
+					enemy_count_list [1]++;
+					break;
+				case "tower3":
+					enemy_count_list [2]++;
+					break;
+				case "tower4":
+					enemy_count_list [3]++;
+					break;
+				}
+			}
 			Battle_Manager.enemy_Left = Battle_Manager.total_Enemy;
-            if (enemy_count_list[0] == 0)
-            {
-                enemy_btn_obj_list[0].SetActive(false);
-                for (int i = 1; i < 4; i++)
-                    enemy_btn_obj_list[i].transform.localPosition = 
-                        new Vector3(enemy_btn_obj_list[i].transform.localPosition.x, 
-                        enemy_btn_obj_list[i].transform.localPosition.y + BTN, 
-                        enemy_btn_obj_list[i].transform.localPosition.z);
-             }
-            if (enemy_count_list[1] == 0)
-            {
-                enemy_btn_obj_list[1].SetActive(false);
-                for (int i = 2; i < 4; i++)
-                    enemy_btn_obj_list[i].transform.localPosition = 
-                        new Vector3(enemy_btn_obj_list[i].transform.localPosition.x, 
-                        enemy_btn_obj_list[i].transform.localPosition.y + BTN, 
-                        enemy_btn_obj_list[i].transform.localPosition.z);
-            }
-            if (enemy_count_list[2] == 0)
-            {
-                enemy_btn_obj_list[2].SetActive(false);
-                for (int i = 3; i < 4; i++)
-                    enemy_btn_obj_list[i].transform.localPosition = 
-                        new Vector3(enemy_btn_obj_list[i].transform.localPosition.x, 
-                        enemy_btn_obj_list[i].transform.localPosition.y + BTN, 
-                        enemy_btn_obj_list[i].transform.localPosition.z);
-            }
-            if (enemy_count_list[3] == 0)
-            {
-                enemy_btn_obj_list[3].SetActive(false);
-            }
+			if (enemy_count_list [0] == 0) {
+				enemy_btn_obj_list [0].SetActive (false);
+				for (int i = 1; i < 4; i++)
+					enemy_btn_obj_list [i].transform.localPosition = 
+                        new Vector3 (enemy_btn_obj_list [i].transform.localPosition.x, 
+						enemy_btn_obj_list [i].transform.localPosition.y + BTN, 
+						enemy_btn_obj_list [i].transform.localPosition.z);
+			}
+			if (enemy_count_list [1] == 0) {
+				enemy_btn_obj_list [1].SetActive (false);
+				for (int i = 2; i < 4; i++)
+					enemy_btn_obj_list [i].transform.localPosition = 
+                        new Vector3 (enemy_btn_obj_list [i].transform.localPosition.x, 
+						enemy_btn_obj_list [i].transform.localPosition.y + BTN, 
+						enemy_btn_obj_list [i].transform.localPosition.z);
+			}
+			if (enemy_count_list [2] == 0) {
+				enemy_btn_obj_list [2].SetActive (false);
+				for (int i = 3; i < 4; i++)
+					enemy_btn_obj_list [i].transform.localPosition = 
+                        new Vector3 (enemy_btn_obj_list [i].transform.localPosition.x, 
+						enemy_btn_obj_list [i].transform.localPosition.y + BTN, 
+						enemy_btn_obj_list [i].transform.localPosition.z);
+			}
+			if (enemy_count_list [3] == 0) {
+				enemy_btn_obj_list [3].SetActive (false);
+			}
 
-            for (int i = 0; i < 4; i++)
-            {
-                if (enemy_btn_obj_list[i].activeSelf)
-                {
-                    enemy_btn_obj_list[i].GetComponent<Button>().interactable = false;
-                }
-            }
+			for (int i = 0; i < 4; i++) {
+				if (enemy_btn_obj_list [i].activeSelf) {
+					enemy_btn_obj_list [i].GetComponent<Button> ().interactable = false;
+				}
+			}
                 
-        }
-        else 
-            Debug.Log("is defence mode!!");
+		} else {
+			Debug.Log ("is defence mode!!");
+			btn_ACE.SetActive (true);
+		}
         life.text = "Life left: " + Battle_Manager.base_Life;
         
 		for (int i = 0; i < towers.Count; i++) {
@@ -155,6 +154,11 @@ public class UI_Battle : UI_Base {
                 }
                 
                 break;
+
+			case "Btn_ACE":
+				use_ACE = true;
+				click_Btn = true;
+					break;
 
             case "Btn_Tower":
 			    if (towers [buttons.IndexOf (obj)].money > Battle_Manager.money)
@@ -213,6 +217,19 @@ public class UI_Battle : UI_Base {
             obj.SetActive(false);
             upgrade_btn = obj;
         }
+		if (name.Equals ("Btn_ACE")) {
+			obj.SetActive (false);
+			btn_ACE = obj;
+            RectTransform rectTransform = btn_ACE.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(BTN * 1.0f, BTN * 1.0f);
+            rectTransform.localPosition = new Vector3(Screen.width/2f - rectTransform.sizeDelta.x / 2f, -Screen.height / 2f + rectTransform.sizeDelta.y / 2f, 0);
+
+
+        }
+        if (name.Equals ("Buffer_Time")) {
+			obj.SetActive (false);
+			Buffer_Time = obj.GetComponent<Text>();
+		}
 		if (name.Equals ("Health")) {
 			obj.SetActive (false);
 			health_Info = obj;
@@ -361,6 +378,20 @@ public class UI_Battle : UI_Base {
 		}
 
         */
+		time += Time.deltaTime;
+		if (time > 1) {
+			time--;
+			if (ACE_Buffer_Time > 0) {
+				ACE_Buffer_Time--;
+				Buffer_Time.text = ACE_Buffer_Time.ToString();
+				if (ACE_Buffer_Time == 0)
+                {
+                    Buffer_Time.gameObject.SetActive(false);
+                    btn_ACE.GetComponent<Button>().interactable = true;
+                }
+					
+			}
+		}
         if (!this.isDefenceMode) // attack mode, set enemy btn enable or disable
         {
             if (Battle_Manager.wave_Time <= 0 && enemy_ciked == -1 && !Battle_Manager.beforeCountDown)
@@ -443,7 +474,28 @@ public class UI_Battle : UI_Base {
                                 pos.x = Mathf.RoundToInt(pos.x);
                                 pos.z = Mathf.RoundToInt(pos.z);
                                 
-                                if ((old_tower_index = Battle_Manager.upgrade_Tower(pos)) != -1)
+								if (use_ACE){
+									if (Battle_Manager.ACE_Pos (pos)) {
+										use_ACE = false;
+										if (Battle_Manager.money < 30||ACE_Buffer_Time!=0)
+											return;
+										ACE = Resources.Load<GameObject> ("Model/ACE");
+										ACE = GameObject.Instantiate (ACE);
+										ACE.transform.localPosition = pos;
+										for (int j = 0; j < Battle_Manager.enemy_List.Count; j++) {
+											if (Vector3.Distance (pos, Battle_Manager.enemy_List [j].transform.localPosition) <= 5) {
+												Battle_Manager.enemy_List [j].change_Health (-2);
+											}
+										}
+										Destroy (ACE, 0.5f);
+										Battle_Manager.money -= 30;
+										ACE_Buffer_Time = 3;
+										Buffer_Time.gameObject.SetActive(true);
+										Buffer_Time.text = ACE_Buffer_Time.ToString();
+                                        btn_ACE.GetComponent<Button>().interactable = false;
+                                    }
+								}
+                                else if ((old_tower_index = Battle_Manager.upgrade_Tower(pos)) != -1)
                                 { string name = Battle_Manager.tower_List[old_tower_index].name;
                                     if (name.Equals("tower1_3") || 
                                         name.Equals("tower2_3") || 

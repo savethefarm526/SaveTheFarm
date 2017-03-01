@@ -179,9 +179,10 @@ public class UI_Select : UI_Base {
             
         else isDefence = false;
 
-        
-        UI_Manager.Enter<UI_Battle>().init(level, towers, enemies, isDefence);
-        
+		if (lv > 2)
+			UI_Manager.Enter<UI_Battle> ().init (level, towers, enemies, isDefence);
+		else
+			UI_Manager.Enter<UI_Guide> ().init (level, towers, enemies, isDefence);
 		
 	}
 

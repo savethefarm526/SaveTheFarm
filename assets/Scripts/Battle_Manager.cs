@@ -122,6 +122,8 @@ public class Battle_Manager {
 			GameObject.Destroy (Bullet_Manager.list [i]);
         }
         Bullet_Manager.list.Clear ();
+
+		GameObject.Destroy (Map_Manager.farm);
 	}
 
 	public static bool next_Wave=true;
@@ -204,6 +206,14 @@ public class Battle_Manager {
 				return true;
 		}
 		
+		return false;
+	}
+
+	public static bool ACE_Pos(Vector3 pos){
+		for (int i = 0; i < Map_Manager.path_Box.Count; i++) {
+			if (Vector3.Distance (pos, Map_Manager.path_Box [i].transform.localPosition) < 0.5f)
+				return true;
+		}
 		return false;
 	}
 
