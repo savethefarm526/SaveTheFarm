@@ -53,7 +53,7 @@ public class Battle_Manager {
         cur_Wave = 0;
 		base_Life = BASE_LIFE;
 		time = 0;
-		money = 500;
+		money = 100;
 
         for (int i = 0; i < enemy_List.Count; i++)
         {
@@ -205,7 +205,6 @@ public class Battle_Manager {
 			if (Vector3.Distance (pos, Map_Manager.path_Box [i].transform.localPosition) < 0.1f)
 				return true;
 		}
-		
 		return false;
 	}
 

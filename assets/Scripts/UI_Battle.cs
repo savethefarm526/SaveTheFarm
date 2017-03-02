@@ -36,7 +36,7 @@ public class UI_Battle : UI_Base {
 		this.towers = towers;
         this.enemies = enemies;
         this.isDefenceMode = isDefence;
-        click_Btn = false;
+        click_Btn = true;
         Camera.main.transform.localPosition = new Vector3 (0, 10, 0);
         //Camera.main.transform.localPosition = new Vector3 (0, 9, -6);
         Camera.main.fieldOfView = 70;
@@ -435,20 +435,20 @@ public class UI_Battle : UI_Base {
                 else
                 {
                     if (tower_Content.activeSelf)
-                    {
-                        if (EventSystem.current.IsPointerOverGameObject() == false) // tower_btn has been clicked
-                        {
-                            tower_Content.SetActive(false);
+                    {   
+                        //if (EventSystem.current.IsPointerOverGameObject() == false) 
+                        
+                        tower_Content.SetActive(false);
                             
-                        }
+                        
                     } else if (upgrade_btn.activeSelf)
                     {
                         
-                        if (EventSystem.current.IsPointerOverGameObject() == false) // tower_btn has been clicked
-                        {
-                            upgrade_btn.SetActive(false);
-                            old_tower_index = -1;
-                        }
+                        //if (EventSystem.current.IsPointerOverGameObject() == false) 
+                        
+                        upgrade_btn.SetActive(false);
+                        old_tower_index = -1;
+                        
                     }
                     else
                     { // change tower_content from false to true to show  all available tower_btn
@@ -464,6 +464,7 @@ public class UI_Battle : UI_Base {
                         pos.y /= rect.rect.height;
                         pos.x += 0.5f;
                         pos.y += 0.5f;
+                        //Debug.Log(btn_pos+"   "+ btn_ACE.transform.localPosition);
                         Ray ray = Camera.main.ViewportPointToRay(pos);
                         RaycastHit[] hits = Physics.RaycastAll(ray);
                         for (int i = 0; i < hits.Length; i++)
@@ -506,7 +507,8 @@ public class UI_Battle : UI_Base {
                                     return;
 
                                 }
-                                else if (Battle_Manager.wrong_Pos(pos) == false)
+                                else if (!Battle_Manager.wrong_Pos(pos) && 
+                                    Vector3.Distance(btn_pos, btn_ACE.transform.localPosition) > btn_ACE.GetComponent<RectTransform>().sizeDelta.x/1.5f)
                                 {
                                     tower_Content.SetActive(true);
                                     tower_Content.transform.localPosition = btn_pos;
