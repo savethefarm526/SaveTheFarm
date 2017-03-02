@@ -73,6 +73,7 @@ public class Tower : MonoBehaviour
 	}
 	public Enemy get_Enemy(){
 		for (int i = 0; i < Battle_Manager.enemy_List.Count; i++) {
+            if (Battle_Manager.enemy_List[i] == null) return null;
 			if (Vector3.Distance (this.transform.localPosition, Battle_Manager.enemy_List [i].transform.localPosition) <= range)
 				return Battle_Manager.enemy_List [i];
 		}

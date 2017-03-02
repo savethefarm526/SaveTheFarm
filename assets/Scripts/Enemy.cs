@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class Enemy : MonoBehaviour{
 	public List<Vector3> path=new List<Vector3>();
-	public int health, max_Health;
+	public float health, max_Health;
 	public float speed;
 	public int Enemy_Money;
 	public Transform health_Pos;
@@ -12,7 +12,7 @@ public class Enemy : MonoBehaviour{
 
 	public float total_Distance;
 
-	public void init(List<Vector3> path,int health,float speed, int Enemy_Money){
+	public void init(List<Vector3> path,float health,float speed, int Enemy_Money){
 		this.path.AddRange(path);
 		this.transform.localPosition = this.path [0];
 		this.path.RemoveAt (0);
@@ -60,7 +60,13 @@ public class Enemy : MonoBehaviour{
 			if (Time.deltaTime < time)
 				this.transform.localPosition = Vector3.Lerp (this.transform.localPosition, pos, Time.deltaTime / time);
 			else {
-				this.transform.localPosition = pos;
+				if (Battle_Manager.ui_Battle.portal_Finished && Vector3.Distance (pos, Battle_Manager.ui_Battle.Portal1.transform.localPosition) < 0.1f) {
+					this.transform.localPosition = Battle_Manager.ui_Battle.Portal2.transform.localPosition;
+					while (Vector3.Distance (path [0], Battle_Manager.ui_Battle.Portal2.transform.localPosition) > 0.1f)
+						path.RemoveAt (0);
+				} else {
+					this.transform.localPosition = pos;
+				}
 				path.RemoveAt (0);
 			}
 			total_Distance += Vector3.Distance (pre_Pos, this.transform.localPosition);

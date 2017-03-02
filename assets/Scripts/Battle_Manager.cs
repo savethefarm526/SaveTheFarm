@@ -105,7 +105,7 @@ public class Battle_Manager {
 
         for (int i = 0; i < enemy_List.Count; i++)
         {
-            GameObject.Destroy(enemy_List[i].gameObject);
+            if (enemy_List[i] != null) GameObject.Destroy(enemy_List[i].gameObject);
         }
         enemy_List.Clear();
 
@@ -205,6 +205,7 @@ public class Battle_Manager {
 			if (Vector3.Distance (pos, Map_Manager.path_Box [i].transform.localPosition) < 0.1f)
 				return true;
 		}
+		
 		return false;
 	}
 

@@ -29,6 +29,15 @@ public class UI_Battle : UI_Base {
 	public int ACE_Buffer_Time = 0;
 	public Text Buffer_Time;
 	public GameObject ACE;
+
+	public GameObject item_Btn_List;
+	public GameObject btn_Shield,btn_Accelerate,btn_Portal;
+	public bool use_Portal=false;
+	public Text shield_Buffer_Time, accelerate_Buffer_Time, portal_Buffer_Time;
+	public int shield_Time=0, accelerate_Time=0, portal_Time=0;
+	public GameObject Portal1,Portal2;
+	public bool portal_Finished=false;
+
     public int old_tower_index = -1;
 	public float time = 0;
 
@@ -45,6 +54,7 @@ public class UI_Battle : UI_Base {
         Battle_Manager.init(this, Map_Manager.get_Path(map));
 		if (!isDefenceMode) {
 			enemy_btn_list.SetActive (true);
+			item_Btn_List.SetActive (true);
 			Debug.Log ("is attack mode!!");
 
 			Battle_Manager.total_Enemy = 0;
@@ -158,7 +168,39 @@ public class UI_Battle : UI_Base {
 			case "Btn_ACE":
 				use_ACE = true;
 				click_Btn = true;
-					break;
+				break;
+
+			case "Portal":
+				use_Portal = true;
+				click_Btn = true;
+				Debug.Log ("portal clicked");
+				break;
+
+			case "Shield":
+				if (Battle_Manager.money < 30 || shield_Time != 0)
+					return;
+				for (int j = 0; j < Battle_Manager.enemy_List.Count; j++) {
+					Battle_Manager.enemy_List [j].health *= 1.5f;
+					Battle_Manager.enemy_List [j].max_Health *= 1.5f;
+				}
+				Battle_Manager.money -= 30;
+				shield_Time = 3;
+				shield_Buffer_Time.gameObject.SetActive (true);
+				shield_Buffer_Time.text = shield_Time.ToString ();
+				btn_Shield.GetComponent<Button> ().interactable = false;
+				break;
+
+			case "Accelerate":
+				if (Battle_Manager.money < 30 || accelerate_Time != 0)
+					return;
+				for (int j = 0; j < Battle_Manager.enemy_List.Count; j++)
+					Battle_Manager.enemy_List [j].speed *= 1.5f;
+				Battle_Manager.money -= 30;
+				accelerate_Time = 3;
+				accelerate_Buffer_Time.gameObject.SetActive (true);
+				accelerate_Buffer_Time.text = accelerate_Time.ToString ();
+				btn_Accelerate.GetComponent<Button> ().interactable = false;
+				break;
 
             case "Btn_Tower":
 			    if (towers [buttons.IndexOf (obj)].money > Battle_Manager.money)
@@ -223,8 +265,6 @@ public class UI_Battle : UI_Base {
             RectTransform rectTransform = btn_ACE.GetComponent<RectTransform>();
             rectTransform.sizeDelta = new Vector2(BTN * 1.0f, BTN * 1.0f);
             rectTransform.localPosition = new Vector3(Screen.width/2f - rectTransform.sizeDelta.x / 2f, -Screen.height / 2f + rectTransform.sizeDelta.y / 2f, 0);
-
-
         }
         if (name.Equals ("Buffer_Time")) {
 			obj.SetActive (false);
@@ -308,6 +348,32 @@ public class UI_Battle : UI_Base {
             enemy_btn_obj_list[3] = obj;
             enemy_btn_obj_list[3].GetComponent<Button>().interactable = false;
         }
+		if (name.Equals ("Item_List")) {
+			Image list = obj.GetComponent<Image> ();
+			RectTransform rectTransform = list.GetComponent<RectTransform> ();
+			rectTransform.sizeDelta = new Vector2 (BTN * 1.0f, BTN * 1.0f);
+			rectTransform.localPosition = new Vector3 (-BTN * 2.5f + Screen.width / 2f, -Screen.height / 2f + rectTransform.sizeDelta.y / 2f, 0);
+			obj.SetActive (false);
+			item_Btn_List = obj;
+		}
+		if (name.Equals ("Shield"))
+			btn_Shield = obj;
+		if (name.Equals ("Accelerate"))
+			btn_Accelerate = obj;
+		if (name.Equals ("Portal"))
+			btn_Portal = obj;
+		if (name.Equals ("Shield_Buffer_Time")) {
+			obj.SetActive (false);
+			shield_Buffer_Time = obj.GetComponent<Text> ();
+		}
+		if (name.Equals ("Accelerate_Buffer_Time")) {
+			obj.SetActive (false);
+			accelerate_Buffer_Time = obj.GetComponent<Text> ();
+		}
+		if (name.Equals ("Portal_Buffer_Time")) {
+			obj.SetActive (false);
+			portal_Buffer_Time = obj.GetComponent<Text> ();
+		}
     }
 	// Use this for initialization
 	void Start () {
@@ -388,8 +454,32 @@ public class UI_Battle : UI_Base {
                 {
                     Buffer_Time.gameObject.SetActive(false);
                     btn_ACE.GetComponent<Button>().interactable = true;
-                }
-					
+                }		
+			}
+			if (shield_Time > 0) {
+				shield_Time--;
+				shield_Buffer_Time.text = shield_Time.ToString ();
+				if (shield_Time == 0) {
+					shield_Buffer_Time.gameObject.SetActive (false);
+					btn_Shield.GetComponent<Button> ().interactable = true;
+				}
+			}
+			if (accelerate_Time > 0) {
+				accelerate_Time--;
+				accelerate_Buffer_Time.text = accelerate_Time.ToString ();
+				if (accelerate_Time == 0) {
+					accelerate_Buffer_Time.gameObject.SetActive (false);
+					btn_Accelerate.GetComponent<Button> ().interactable = true;
+				}
+			}
+			if (portal_Time > 0) {
+				portal_Time--;
+				portal_Buffer_Time.text = portal_Time.ToString ();
+				if (portal_Time == 0) {
+					portal_Buffer_Time.gameObject.SetActive (false);
+					btn_Portal.GetComponent<Button> ().interactable = true;
+					portal_Finished = false;
+				}
 			}
 		}
         if (!this.isDefenceMode) // attack mode, set enemy btn enable or disable
@@ -435,20 +525,14 @@ public class UI_Battle : UI_Base {
                 else
                 {
                     if (tower_Content.activeSelf)
-                    {   
-                        //if (EventSystem.current.IsPointerOverGameObject() == false) 
-                        
-                        tower_Content.SetActive(false);
-                            
-                        
+                    {
+                       // if (EventSystem.current.IsPointerOverGameObject() == false) // tower_btn has been clicked
+                      tower_Content.SetActive(false);
                     } else if (upgrade_btn.activeSelf)
                     {
-                        
-                        //if (EventSystem.current.IsPointerOverGameObject() == false) 
-                        
-                        upgrade_btn.SetActive(false);
-                        old_tower_index = -1;
-                        
+                        //if (EventSystem.current.IsPointerOverGameObject() == false) // tower_btn has been clicked
+                       upgrade_btn.SetActive(false);
+                       old_tower_index = -1; 
                     }
                     else
                     { // change tower_content from false to true to show  all available tower_btn
@@ -464,7 +548,6 @@ public class UI_Battle : UI_Base {
                         pos.y /= rect.rect.height;
                         pos.x += 0.5f;
                         pos.y += 0.5f;
-                        //Debug.Log(btn_pos+"   "+ btn_ACE.transform.localPosition);
                         Ray ray = Camera.main.ViewportPointToRay(pos);
                         RaycastHit[] hits = Physics.RaycastAll(ray);
                         for (int i = 0; i < hits.Length; i++)
@@ -475,10 +558,10 @@ public class UI_Battle : UI_Base {
                                 pos.x = Mathf.RoundToInt(pos.x);
                                 pos.z = Mathf.RoundToInt(pos.z);
                                 
-								if (use_ACE){
+								if (use_ACE) {
 									if (Battle_Manager.ACE_Pos (pos)) {
 										use_ACE = false;
-										if (Battle_Manager.money < 30||ACE_Buffer_Time!=0)
+										if (Battle_Manager.money < 30 || ACE_Buffer_Time != 0)
 											return;
 										ACE = Resources.Load<GameObject> ("Model/ACE");
 										ACE = GameObject.Instantiate (ACE);
@@ -491,11 +574,11 @@ public class UI_Battle : UI_Base {
 										Destroy (ACE, 0.5f);
 										Battle_Manager.money -= 30;
 										ACE_Buffer_Time = 3;
-										Buffer_Time.gameObject.SetActive(true);
-										Buffer_Time.text = ACE_Buffer_Time.ToString();
-                                        btn_ACE.GetComponent<Button>().interactable = false;
-                                    }
-								}
+										Buffer_Time.gameObject.SetActive (true);
+										Buffer_Time.text = ACE_Buffer_Time.ToString ();
+										btn_ACE.GetComponent<Button> ().interactable = false;
+									}
+								} 
                                 else if ((old_tower_index = Battle_Manager.upgrade_Tower(pos)) != -1)
                                 { string name = Battle_Manager.tower_List[old_tower_index].name;
                                     if (name.Equals("tower1_3") || 
@@ -507,8 +590,8 @@ public class UI_Battle : UI_Base {
                                     return;
 
                                 }
-                                else if (!Battle_Manager.wrong_Pos(pos) && 
-                                    Vector3.Distance(btn_pos, btn_ACE.transform.localPosition) > btn_ACE.GetComponent<RectTransform>().sizeDelta.x/1.5f)
+                                else if (Battle_Manager.wrong_Pos(pos) == false &&
+                                    Vector3.Distance(btn_pos, btn_ACE.transform.localPosition) > btn_ACE.GetComponent<RectTransform>().sizeDelta.x/1.0f)
                                 {
                                     tower_Content.SetActive(true);
                                     tower_Content.transform.localPosition = btn_pos;
@@ -523,7 +606,74 @@ public class UI_Battle : UI_Base {
         }
         else // attack mode, no need to show tower btn, this is for add item code
         {
+			if (click_Btn == false &&
+			    Battle_Manager.stop == false &&
+			    ((Input.touchCount > 0 && Input.GetTouch (0).phase == TouchPhase.Canceled) ||
+			    Input.GetMouseButtonUp (0))) {
+				Vector3 pos = Input.mousePosition;
+				pos.x -= Screen.width / 2;
+				pos.y -= Screen.height / 2;
+				//					pos.x *= 598f / Screen.height;
+				//					pos.y *= 598f / Screen.height;
+//				Vector3 btn_pos = pos;
 
+				RectTransform rect = this.GetComponent<RectTransform>();
+				pos.x /= rect.rect.width;
+				pos.y /= rect.rect.height;
+				pos.x += 0.5f;
+				pos.y += 0.5f;
+				Ray ray = Camera.main.ViewportPointToRay(pos);
+				RaycastHit[] hits = Physics.RaycastAll(ray);
+				for (int i = 0; i < hits.Length; i++) {
+					if (hits [i].collider.name == "map_show") {
+						pos = hits [i].point;
+						pos.x = Mathf.RoundToInt (pos.x);
+						pos.z = Mathf.RoundToInt (pos.z);
+
+						if (use_Portal) {
+							if (Battle_Manager.ACE_Pos (pos)) {
+								use_Portal = false;
+								if (Battle_Manager.money < 30 || portal_Time != 0)
+									return;
+								Portal1 = Resources.Load<GameObject> ("Model/Portal");
+								Portal1 = GameObject.Instantiate (Portal1);
+								Portal1.transform.localPosition = pos;
+								int end_Index = 0;
+								for (int j = 0; j < Battle_Manager.path.Count; j++) {
+									if (Vector3.Distance (Battle_Manager.path [j], pos) < 0.1f) {
+										if((j>0&&Battle_Manager.path[j-1].x==Battle_Manager.path[j].x)||(j<Battle_Manager.path.Count-1&&Battle_Manager.path[j+1].x==Battle_Manager.path[j].x)){
+											var rotationVector = Portal1.transform.rotation.eulerAngles;
+											rotationVector.y = 90;
+											Portal1.transform.rotation = Quaternion.Euler (rotationVector);
+										}
+										end_Index = Mathf.Min (Battle_Manager.path.Count - 2, j + 5);
+										break;
+									}
+								}
+								Portal2 = Resources.Load<GameObject> ("Model/Portal");
+								Portal2 = GameObject.Instantiate (Portal2);
+								Portal2.transform.localPosition = Battle_Manager.path [end_Index];
+								if((end_Index>0&&Battle_Manager.path[end_Index-1].x==Battle_Manager.path[end_Index].x)||(end_Index<Battle_Manager.path.Count-1&&Battle_Manager.path[end_Index+1].x==Battle_Manager.path[end_Index].x)){
+									var rotationVector = Portal1.transform.rotation.eulerAngles;
+									rotationVector.y = 90;
+									Portal2.transform.rotation = Quaternion.Euler (rotationVector);
+								}
+								portal_Finished = true;
+								Battle_Manager.money -= 30;
+
+								Destroy (Portal1, 5f);
+								Destroy (Portal2, 5f);
+
+								portal_Time = 5;
+								portal_Buffer_Time.gameObject.SetActive (true);
+								portal_Buffer_Time.text = portal_Time.ToString ();
+								btn_Portal.GetComponent<Button> ().interactable = false;
+							}
+						}
+					}
+				}
+			}
+			click_Btn = false;
         }
 	}
 

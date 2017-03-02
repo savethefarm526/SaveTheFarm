@@ -17,6 +17,7 @@ public class Map_Manager {
 		string[] path_tower = text.Split ('#');
 		string[] path = path_tower[0].Trim('\n').Split('\n');
 		List<Vector3> path_Points = new List<Vector3> ();
+		List<Vector3> path_Total_Points = new List<Vector3> ();
 		for (int i = 0; i < path.Length; i++) {
 			string[] point = path [i].Split (',');
 			path_Points.Add (new Vector3 (int.Parse (point [0]), 0, int.Parse (point [1])));
@@ -27,6 +28,7 @@ public class Map_Manager {
 			Vector3 pos = path_Points [0];
 			box.transform.localPosition = pos;
 			path_Box.Add (box);
+			path_Total_Points.Add (pos);
 			for (int i = 1; i < path_Points.Count; i++) {
 				while (pos.x != path_Points [i].x) {
 					if (pos.x > path_Points [i].x)
@@ -36,6 +38,7 @@ public class Map_Manager {
 					box = GameObject.Instantiate (box);
 					box.transform.localPosition = pos;
 					path_Box.Add (box);
+					path_Total_Points.Add (pos);
 				}
 				while (pos.z != path_Points [i].z) {
 					if (pos.z > path_Points [i].z)
@@ -45,6 +48,7 @@ public class Map_Manager {
 					box = GameObject.Instantiate (box);
 					box.transform.localPosition = pos;
 					path_Box.Add (box);
+					path_Total_Points.Add (pos);
 				}
 			}
 			farm = Resources.Load<GameObject> ("Model/Farm");
@@ -63,7 +67,8 @@ public class Map_Manager {
 			}
 			farm.transform.localPosition = pos;
 		}
-		return path_Points;
+//		return path_Points;
+		return path_Total_Points;
 	}
 
 	//get tower 
