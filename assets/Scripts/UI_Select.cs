@@ -180,11 +180,12 @@ public class UI_Select : UI_Base {
         else isDefence = false;
 
 		if (lv > 2)
-			UI_Manager.Enter<UI_Battle> ().init (level, towers, enemies, isDefence);
-		else
-			UI_Manager.Enter<UI_Guide> ().init (level, towers, enemies, isDefence);
-		
-	}
+			UI_Manager.Enter<UI_Battle> ().init (level, towers, enemies, isDefence, star1);
+		else if (lv == 2)
+            UI_Manager.Enter<UI_Guide>().init(level, towers, enemies, isDefence, star1);
+        else
+            UI_Manager.Enter<UI_Guide>().init(level, towers, enemies, isDefence, 3);
+    }
 
 
     public void setTowers(List<Tower_Info> towers, int num1, int num2, int num3, int num4)
@@ -198,10 +199,10 @@ public class UI_Select : UI_Base {
     public void setEnemies(int level, List<Enemy_Info> enemies, int num1, int num2, int num3, int num4)
     {   if (level%2 == 1)
         {
-            for (int i = 0; i < num1; i++) enemies.Add(new Enemy_Info("enemy1", 2, 5, 10, 5));
-            for (int i = 0; i < num2; i++) enemies.Add(new Enemy_Info("enemy2", 5, 2, 10, 6));
-            for (int i = 0; i < num3; i++) enemies.Add(new Enemy_Info("enemy3", 10, 1, 5, 7));
-            for (int i = 0; i < num4; i++) enemies.Add(new Enemy_Info("enemy4", 20, 1, 3, 10));
+            for (int i = 0; i < num1; i++) enemies.Add(new Enemy_Info("enemy1", 2 * Mathf.Sqrt(level), 5, 10, 5));
+            for (int i = 0; i < num2; i++) enemies.Add(new Enemy_Info("enemy2", 5 * Mathf.Sqrt(level), 2, 10, 6));
+            for (int i = 0; i < num3; i++) enemies.Add(new Enemy_Info("enemy3", 10 * Mathf.Sqrt(level), 1, 5, 7));
+            for (int i = 0; i < num4; i++) enemies.Add(new Enemy_Info("enemy4", 20 * Mathf.Sqrt(level), 1, 3, 10));
         }
         else
         {

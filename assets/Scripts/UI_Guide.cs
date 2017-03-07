@@ -8,14 +8,15 @@ public class UI_Guide : UI_Base {
 	public List<Tower_Info> towers=new List<Tower_Info>();
 	public List<Enemy_Info> enemies=new List<Enemy_Info>();
 	public bool isDefenseMode=true;
-
+    public int star = 0;
 	public RawImage defense,attack;
 
-	public void init(string map,List<Tower_Info> towers,List<Enemy_Info> enemies,bool isDefenseMode){
+	public void init(string map,List<Tower_Info> towers,List<Enemy_Info> enemies,bool isDefenseMode, int star){
 		this.map = map;
 		this.towers = towers;
 		this.enemies = enemies;
 		this.isDefenseMode = isDefenseMode;
+        this.star = star;
 
 		if (isDefenseMode) {
 			defense.gameObject.SetActive (true);
@@ -47,7 +48,7 @@ public class UI_Guide : UI_Base {
 		if (Input.touchCount > 0 || Input.GetMouseButton (0)) {
 			UI_Manager.Exit (this);
             
-			UI_Manager.Enter<UI_Battle> ().init (map, towers, enemies, isDefenseMode);
+			UI_Manager.Enter<UI_Battle> ().init (map, towers, enemies, isDefenseMode, star);
 		}
 	}
 }

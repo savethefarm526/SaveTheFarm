@@ -71,8 +71,10 @@ public class Battle_Manager {
 		if (Battle_Manager.base_Life <= 1) {
 			Battle_Manager.base_Life = 0;
 			stop = true;
-			if (!Battle_Manager.ui_Battle.isDefenceMode) {
-				float percentage = (float)Battle_Manager.enemy_Left / Battle_Manager.total_Enemy;
+			if (!ui_Battle.isDefenceMode) {
+
+				float percentage = (float)enemy_Left / total_Enemy;
+                Debug.Log(enemy_Left + ", " + total_Enemy);
 				if (percentage >= 2.0 / 3)
 					scores [cur_Level - 1] = 3;
 				else if (percentage >= 1.0 / 3 && scores[cur_Level-1]<2)

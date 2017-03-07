@@ -37,15 +37,16 @@ public class UI_Battle : UI_Base {
 	public int shield_Time=0, accelerate_Time=0, portal_Time=0;
 	public GameObject Portal1,Portal2;
 	public bool portal_Finished=false;
-
+    public int star = 0;
     public int old_tower_index = -1;
 	public float time = 0;
 
-    public void init(string map,List<Tower_Info> towers, List<Enemy_Info> enemies, bool isDefence){
+    public void init(string map,List<Tower_Info> towers, List<Enemy_Info> enemies, bool isDefence, int star){
 		this.towers = towers;
         this.enemies = enemies;
         this.isDefenceMode = isDefence;
         click_Btn = true;
+        this.star = star;
         Camera.main.transform.localPosition = new Vector3 (0, 10, 0);
         //Camera.main.transform.localPosition = new Vector3 (0, 9, -6);
         Camera.main.fieldOfView = 70;
@@ -244,6 +245,11 @@ public class UI_Battle : UI_Base {
                 enemy_ciked = 3;
                 enemy_count_list[enemy_ciked]--;
                 break;
+            case "Pause":
+                if (Time.timeScale != 0)
+                    Time.timeScale = 0;
+                else Time.timeScale = 1;
+                break;
         }
 		
 	}
@@ -253,7 +259,13 @@ public class UI_Battle : UI_Base {
 			obj.SetActive (false);
 			tower_Content = obj;
 		}
-        
+        if(name.Equals("Pause"))
+        {
+            GameObject btn_pause = obj;
+            RectTransform rectTransform = btn_pause.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(BTN * 1.0f, BTN * 1.0f);
+            rectTransform.localPosition = new Vector3(Screen.width / 2f - rectTransform.sizeDelta.x / 2f, 0, 0);
+        }
         if (name.Equals("Btn_Upgrade"))
         {
             obj.SetActive(false);
@@ -580,11 +592,16 @@ public class UI_Battle : UI_Base {
 									}
 								} 
                                 else if ((old_tower_index = Battle_Manager.upgrade_Tower(pos)) != -1)
-                                { string name = Battle_Manager.tower_List[old_tower_index].name;
-                                    if (name.Equals("tower1_3") || 
-                                        name.Equals("tower2_3") || 
-                                        name.Equals("tower3_3") || 
+                                {
+                                    string name = Battle_Manager.tower_List[old_tower_index].name;
+                                    if (star == 1 || name.Equals("tower1_3") ||
+                                        name.Equals("tower2_3") ||
+                                        name.Equals("tower3_3") ||
                                         name.Equals("tower4_3")) return;
+                                    else if (star == 2 && (name.Equals("tower1_2") ||
+                                        name.Equals("tower2_2") ||
+                                        name.Equals("tower3_2") ||
+                                        name.Equals("tower4_2"))) return;
                                     upgrade_btn.SetActive(true);
                                     upgrade_btn.transform.localPosition = btn_pos;
                                     return;

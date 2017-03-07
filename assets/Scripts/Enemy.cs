@@ -32,6 +32,7 @@ public class Enemy : MonoBehaviour{
 			else {
 				Battle_Manager.money += (int)total_Distance;
 				Battle_Manager.enemy_Left--;
+                //Debug.Log(Battle_Manager.enemy_Left);
 			}
 		}
 		item_Health.health_Bar.size = item_Health.enemy.health * 1f / item_Health.enemy.max_Health;
