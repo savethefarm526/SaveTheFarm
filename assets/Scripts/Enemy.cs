@@ -11,10 +11,13 @@ public class Enemy : MonoBehaviour{
 	public Health item_Health;
 
 	public float total_Distance;
+	public bool horizontal=true;
 
 	public void init(List<Vector3> path,float health,float speed, int Enemy_Money){
 		this.path.AddRange(path);
 		this.transform.localPosition = this.path [0];
+		if (path [1].x == path [0].x)
+			horizontal = false;
 		this.path.RemoveAt (0);
 		max_Health = this.health = health;
 		this.speed = speed;
@@ -41,6 +44,16 @@ public class Enemy : MonoBehaviour{
 	// Update is called once per frame
 	public void mUpdate () {
 		if (path.Count > 0) {
+			for (int i = 0; i < Battle_Manager.ui_Battle.blocks.Count; i++) {
+				if (Battle_Manager.ui_Battle.blocks [i] != null && Vector3.Distance (this.transform.localPosition, Battle_Manager.ui_Battle.blocks [i].transform.localPosition) < 0.1f)
+					return;
+//				if (Battle_Manager.ui_Battle.blocks [i] != null) {
+//					if (horizontal && Mathf.Abs (this.transform.localPosition.x - Battle_Manager.ui_Battle.blocks [i].transform.localPosition.x) < 0.1f)
+//						return;
+//					if (!horizontal && Mathf.Abs (this.transform.localPosition.z - Battle_Manager.ui_Battle.blocks [i].transform.localPosition.z) < 0.1f)
+//						return;
+//				}
+			}
 			Vector3 pos = path [0];
 			float distance;
 			if (this.transform.localPosition.z == pos.z) {
@@ -58,17 +71,59 @@ public class Enemy : MonoBehaviour{
 			}
 			float time = distance / speed;
 			Vector3 pre_Pos = this.transform.localPosition;
-			if (Time.deltaTime < time)
+			if (Time.deltaTime < time) {
+//				if (horizontal) {
+//					pos.z += Random.value - 0.5f;
+//					Debug.Log ("initial: " + this.transform.localPosition);
+//					this.transform.localPosition = Vector3.Lerp (this.transform.localPosition, pos, Time.deltaTime / time);
+//					Debug.Log ("position: " + this.transform.localPosition);
+//					Debug.Log ("pos: " + pos);
+
+//					float tmp_x = (Mathf.Lerp (this.transform.localPosition.x, pos.x, Time.deltaTime / time))*100;
+//					float tmp_z = (this.transform.localPosition.z + (Random.value - 0.5f)/10f)*100;
+//					Debug.Log ("tmp_x: " + tmp_x);
+//					Debug.Log ("tmp_z: " + tmp_z);
+//					Debug.Log("position: "+new Vector3(tmp_x,0,tmp_z)/100f);
+//					this.transform.localPosition = new Vector3 (tmp_x, 0, tmp_z)/100f;
+//				}else{
+//					float tmp_z = Mathf.Lerp (this.transform.localPosition.z, pos.z, Time.deltaTime / time);
+//					float tmp_x = this.transform.localPosition.x + (Random.value - 0.5f)/10f;
+//					this.transform.localPosition = new Vector3 (tmp_x, 0, tmp_z);
+//				}
+//				Debug.Log ("position: " + this.transform.localPosition);
 				this.transform.localPosition = Vector3.Lerp (this.transform.localPosition, pos, Time.deltaTime / time);
-			else {
-				if (Battle_Manager.ui_Battle.portal_Finished && Vector3.Distance (pos, Battle_Manager.ui_Battle.Portal1.transform.localPosition) < 0.1f) {
-					this.transform.localPosition = Battle_Manager.ui_Battle.Portal2.transform.localPosition;
-					while (Vector3.Distance (path [0], Battle_Manager.ui_Battle.Portal2.transform.localPosition) > 0.1f)
-						path.RemoveAt (0);
-				} else {
-					this.transform.localPosition = pos;
+//				Debug.Log ("initial: " + this.transform.localPosition);
+//				this.transform.localPosition = new Vector3 (this.transform.localPosition.x, 0, this.transform.localPosition.z + (Random.value - 0.5f)/10f);
+//				Debug.Log ("final: " + this.transform.localPosition);
+			} else {
+				int i = 0;
+				for (; i < Battle_Manager.ui_Battle.portals1.Count; i++) {
+					if (Battle_Manager.ui_Battle.portals1 [i] != null && Vector3.Distance (pos, Battle_Manager.ui_Battle.portals1 [i].transform.localPosition) < 0.1f) {
+						this.transform.localPosition = Battle_Manager.ui_Battle.portals2 [i].transform.localPosition;
+						while (Vector3.Distance (path [0], Battle_Manager.ui_Battle.portals2 [i].transform.localPosition) > 0.1f)
+							path.RemoveAt (0);
+						break;
+					}
 				}
+				if (i == Battle_Manager.ui_Battle.portals1.Count)
+					this.transform.localPosition = pos;
+				if (path.Count > 1) {
+					if (path [0].x == path [1].x)
+						horizontal = false;
+					else
+						horizontal = true;
+				}
+				Debug.Log ("horizontal: " + horizontal);
 				path.RemoveAt (0);
+
+//				if (Battle_Manager.ui_Battle.portal_Finished && Vector3.Distance (pos, Battle_Manager.ui_Battle.Portal1.transform.localPosition) < 0.1f) {
+//					this.transform.localPosition = Battle_Manager.ui_Battle.Portal2.transform.localPosition;
+//					while (Vector3.Distance (path [0], Battle_Manager.ui_Battle.Portal2.transform.localPosition) > 0.1f)
+//						path.RemoveAt (0);
+//				} else {
+//					this.transform.localPosition = pos;
+//				}
+//				path.RemoveAt (0);
 			}
 			total_Distance += Vector3.Distance (pre_Pos, this.transform.localPosition);
 		} else {

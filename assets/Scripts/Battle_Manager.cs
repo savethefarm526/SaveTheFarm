@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 public class Battle_Manager {
 	public const int BASE_LIFE=10;
+	public const int MONEY_CURRENT_WAVE = 10;
+	public const int INIT_WAVE_TIME = 5;
+	public const int BASE_MONEY = 100;
 
 	public static UI_Battle ui_Battle;
 	public static List<Vector3> path;
@@ -31,20 +34,20 @@ public class Battle_Manager {
 		if (!ui_Battle.isDefenceMode && ui_Battle.tower_coor_list != null)
         {
             for (int j = 0; j < ui_Battle.tower_coor_list[0].Count; j++)
-            {
-                create_Tower(ui_Battle.tower_coor_list[0][j], new Tower_Info("tower1", "enemy1", 1, 0.8f, 2, "", "bullet", 10, 0));
+			{//                                                           name,model,power,period,range,animation,bullet,bullet_spd,money
+                create_Tower(ui_Battle.tower_coor_list[0][j], new Tower_Info("tower1", "enemy1", 1, 0.8f, 2, "", "bullet", 1, 0));
             }
             for (int j = 0; j < ui_Battle.tower_coor_list[1].Count; j++)
             {
-                create_Tower(ui_Battle.tower_coor_list[1][j], new Tower_Info("tower2", "enemy2", 2, 0.8f, 2, "", "bullet", 10, 0));
+                create_Tower(ui_Battle.tower_coor_list[1][j], new Tower_Info("tower2", "enemy2", 2, 0.8f, 2, "", "bullet", 1, 0));
             }
             for (int j = 0; j < ui_Battle.tower_coor_list[2].Count; j++)
             {
-                create_Tower(ui_Battle.tower_coor_list[2][j], new Tower_Info("tower3", "enemy3", 3, 0.8f, 3, "", "bullet", 10, 0));
+                create_Tower(ui_Battle.tower_coor_list[2][j], new Tower_Info("tower3", "enemy3", 3, 0.8f, 3, "", "bullet", 1, 0));
             }
             for (int j = 0; j < ui_Battle.tower_coor_list[3].Count; j++)
             {
-                create_Tower(ui_Battle.tower_coor_list[3][j], new Tower_Info("tower4", "enemy4", 3, 0.8f, 5, "", "bullet", 10, 0));
+                create_Tower(ui_Battle.tower_coor_list[3][j], new Tower_Info("tower4", "enemy4", 3, 0.8f, 5, "", "bullet", 1, 0));
             }
 
 
@@ -53,7 +56,7 @@ public class Battle_Manager {
         cur_Wave = 0;
 		base_Life = BASE_LIFE;
 		time = 0;
-		money = 100;
+		money = BASE_MONEY;
 
         for (int i = 0; i < enemy_List.Count; i++)
         {
@@ -129,25 +132,30 @@ public class Battle_Manager {
 	}
 
 	public static bool next_Wave=true;
+	public const int ENEMY_PERIOD = 10;
+	public static int next_Enemy = ENEMY_PERIOD;
+
 	public static void mUpdate(){
 		if (stop==false) {
 			if (enemies.Count > 0) {
 				time += Time.deltaTime;
 				if (time >= 1 && ui_Battle.isDefenceMode || time >= 0 && !ui_Battle.isDefenceMode) { // decrese time
-					time--;
+					time--;next_Enemy--;
 					if (wave_Time > 0) { // count down from 5 to 0
+						next_Enemy = wave_Time;
 						wave_Time--;
 						ui_Battle.wave_Decrease (wave_Time);
 					} else if (next_Wave==true) { // start next wave and start count down from 5, wava_time = 0
 						next_Wave = false;
 						cur_Wave++;
                         beforeCountDown = false;
-                        wave_Time = 5;
+						wave_Time = INIT_WAVE_TIME;
 						ui_Battle.wave_Decrease (wave_Time);
 						if(ui_Battle.isDefenceMode)
 							ui_Battle.wave.text = "Wave number: " + cur_Wave;
-					} else if (ui_Battle.isDefenceMode)
+					} else if (ui_Battle.isDefenceMode && next_Enemy.Equals(0))
                     { // next wave is false, in current wave, creating enemy, wava_time = 0
+						next_Enemy=ENEMY_PERIOD;
                         Enemy enemy = Enemy_Manager.create(enemies[0], path);
                         ui_Battle.bind(enemy);
                         enemy_List.Add(enemy);
@@ -156,7 +164,7 @@ public class Battle_Manager {
                             enemies.RemoveAt(0);
                             next_Wave = true;
 
-							money += 10;
+							money += MONEY_CURRENT_WAVE;
                         }
                         else // enemy creating
                             enemies[0].number--;
@@ -211,7 +219,7 @@ public class Battle_Manager {
 		return false;
 	}
 
-	public static bool ACE_Pos(Vector3 pos){
+	public static bool bomb_Pos(Vector3 pos){
 		for (int i = 0; i < Map_Manager.path_Box.Count; i++) {
 			if (Vector3.Distance (pos, Map_Manager.path_Box [i].transform.localPosition) < 0.5f)
 				return true;

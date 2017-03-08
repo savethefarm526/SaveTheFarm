@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class UI_Select : UI_Base {
+	private const int TITLE_SIZE = 90;
+	private const int BUTTON_SIZE = 50;
+
 	public Text[] levels=new Text[15];
     public Text mTitle;
     public Button mBtn_Back;
     public Image mLevel_Ground;
     public GameObject mStar_ground;
-    private int TITLE_SIZE = 90;
-    private int BUTTON_SIZE = 50;
     private bool isDefence = true;
     public void init(bool isDefence)
     {
@@ -190,26 +191,26 @@ public class UI_Select : UI_Base {
 
     public void setTowers(List<Tower_Info> towers, int num1, int num2, int num3, int num4)
     {
-        if (num1 > 0) towers.Add(new Tower_Info("tower1", "tower1", 1, 0.8f, 2, "", "bullet", 10, 15));
-        if (num2 > 0) towers.Add(new Tower_Info("tower2", "tower2", 2, 0.8f, 2, "", "bullet", 10, 18));
-        if (num3 > 0) towers.Add(new Tower_Info("tower3", "tower3", 3, 0.8f, 3, "", "bullet", 10, 20));
-        if (num4 > 0) towers.Add(new Tower_Info("tower4", "tower4", 3, 0.8f, 5, "", "bullet", 10, 23));
+        if (num1 > 0) towers.Add(new Tower_Info("tower1", "tower1", 1, 0.8f, 2, "", "bullet", 1, 15));
+        if (num2 > 0) towers.Add(new Tower_Info("tower2", "tower2", 2, 0.8f, 2, "", "bullet", 1, 18));
+        if (num3 > 0) towers.Add(new Tower_Info("tower3", "tower3", 3, 0.8f, 3, "", "bullet", 1, 20));
+        if (num4 > 0) towers.Add(new Tower_Info("tower4", "tower4", 3, 0.8f, 5, "", "bullet", 1, 23));
     }
 
     public void setEnemies(int level, List<Enemy_Info> enemies, int num1, int num2, int num3, int num4)
     {   if (level%2 == 1)
-        {
-            for (int i = 0; i < num1; i++) enemies.Add(new Enemy_Info("enemy1", 2 * Mathf.Sqrt(level), 5, 10, 5));
-            for (int i = 0; i < num2; i++) enemies.Add(new Enemy_Info("enemy2", 5 * Mathf.Sqrt(level), 2, 10, 6));
-            for (int i = 0; i < num3; i++) enemies.Add(new Enemy_Info("enemy3", 10 * Mathf.Sqrt(level), 1, 5, 7));
-            for (int i = 0; i < num4; i++) enemies.Add(new Enemy_Info("enemy4", 20 * Mathf.Sqrt(level), 1, 3, 10));
+		{//                                         				   model,   health,            speed,number,money
+            for (int i = 0; i < num1; i++) enemies.Add(new Enemy_Info("enemy1", 2 * Mathf.Sqrt(level), 0.5f, 10, 5));
+            for (int i = 0; i < num2; i++) enemies.Add(new Enemy_Info("enemy2", 5 * Mathf.Sqrt(level), 0.2f, 10, 6));
+            for (int i = 0; i < num3; i++) enemies.Add(new Enemy_Info("enemy3", 10 * Mathf.Sqrt(level), 0.1f, 5, 7));
+            for (int i = 0; i < num4; i++) enemies.Add(new Enemy_Info("enemy4", 20 * Mathf.Sqrt(level), 0.1f, 3, 10));
         }
         else
         {
-            for (int i = 0; i < num1; i++) enemies.Add(new Enemy_Info("tower1", 2, 5, 10, 5));
-            for (int i = 0; i < num2; i++) enemies.Add(new Enemy_Info("tower2", 5, 2, 10, 6));
-            for (int i = 0; i < num3; i++) enemies.Add(new Enemy_Info("tower3", 10, 1, 5, 7));
-            for (int i = 0; i < num4; i++) enemies.Add(new Enemy_Info("tower4", 20, 1, 3, 10));
+            for (int i = 0; i < num1; i++) enemies.Add(new Enemy_Info("tower1", 2, 0.5f, 10, 5));
+            for (int i = 0; i < num2; i++) enemies.Add(new Enemy_Info("tower2", 5, 0.2f, 10, 6));
+            for (int i = 0; i < num3; i++) enemies.Add(new Enemy_Info("tower3", 10, 0.1f, 5, 7));
+            for (int i = 0; i < num4; i++) enemies.Add(new Enemy_Info("tower4", 20, 0.1f, 3, 10));
         }
     }
 }
