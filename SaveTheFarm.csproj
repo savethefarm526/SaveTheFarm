@@ -95,7 +95,6 @@
     <Compile Include="assets\Scripts\Tower_Manager.cs" />
     <Compile Include="assets\Scripts\UI_Base.cs" />
     <Compile Include="assets\Scripts\UI_Battle.cs" />
-    <Compile Include="assets\Scripts\UI_Guide.cs" />
     <Compile Include="assets\Scripts\UI_Manager.cs" />
     <Compile Include="assets\Scripts\UI_Result.cs" />
     <Compile Include="assets\Scripts\UI_Select.cs" />

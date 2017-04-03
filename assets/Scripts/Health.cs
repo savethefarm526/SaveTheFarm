@@ -1,16 +1,28 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class Health : UI_Base {
 	public Scrollbar health_Bar;
 	public Enemy enemy;
+
+	public List<Image> status=new List<Image>();
 
 	public void init(Enemy enemy){
 		this.enemy = enemy;
 		enemy.item_Health = this;
 		this.health_Bar = this.transform.FindChild ("bar_hp").GetComponent<Scrollbar> ();
 		health_Bar.size = this.enemy.health * 1f / this.enemy.max_Health;
+
+		GridLayoutGroup grid = this.transform.FindChild ("imgs").GetComponent<GridLayoutGroup> ();
+		status.Add(grid.transform.FindChild("speed_down").GetComponent<Image>());
+		status.Add(grid.transform.FindChild("lose_health").GetComponent<Image>());
+		status.Add(grid.transform.FindChild("power_up").GetComponent<Image>());
+		status.Add(grid.transform.FindChild("speed_up").GetComponent<Image>());
+		for (int i = 0; i < status.Count; i++)
+			status [i].gameObject.SetActive (false);
+
 		update_Pos ();
 	}
 	public void update_Pos(){

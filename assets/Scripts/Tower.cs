@@ -13,6 +13,9 @@ public class Tower : MonoBehaviour
     public string name;
 	private float time=0;
 
+	public string model;
+	public string towerNo;
+
 	public void init (Tower_Info info)
 	{
 		this.power = info.power;
@@ -22,6 +25,27 @@ public class Tower : MonoBehaviour
         this.name = info.name;
 		this.bullet_Spd = info.bullet_spd;
 		this.animation = info.animation;
+
+		this.model = info.model;
+
+		towerNo = "1";
+		if (info.model.Equals ("tower4") || info.model.Equals ("tower4_2") || info.model.Equals ("tower4_3"))
+			towerNo = "2";
+
+		Animator anim = this.GetComponent<Animator> ();
+		anim.speed = 2f;
+		if (Battle_Manager.ui_Battle.isDefenceMode) {
+			anim.runtimeAnimatorController = Resources.Load ("Animation/towerDefenseController" + towerNo) as RuntimeAnimatorController;
+		} else {
+			anim.runtimeAnimatorController = Resources.Load ("Animation/enemyAttackController" + towerNo) as RuntimeAnimatorController;
+		}
+	}
+
+	public void changeAnimator(){
+		towerNo = "1";
+		if (model.Equals ("zombie3")||model.Equals("zombie4"))
+			towerNo = "2";
+		this.GetComponent<Animator> ().runtimeAnimatorController = Resources.Load ("Animation/enemyAttackController" + towerNo) as RuntimeAnimatorController;
 	}
 
 	// Use this for initialization
@@ -33,28 +57,75 @@ public class Tower : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		time += Time.deltaTime;
-		if (time >= period) {
-			time = 0;
-			if (enemy == null) {
-				enemy = get_Enemy ();
-				if (enemy != null) {
+		if (UI_Func.pause)
+			return;
+
+        time += Time.deltaTime;
+        if (Battle_Manager.ui_Battle.isDefenceMode)
+        {
+            if (time >= period)
+            {
+                time = 0;
+                if (enemy == null)
+                {
+                    enemy = get_Enemy();
+                    if (enemy != null)
+                    {
+                        this.transform.LookAt(enemy.transform);
+                        attack_Enemy(enemy);
+                    }
+                }
+                else if (Vector3.Distance(this.transform.localPosition, enemy.transform.localPosition) <= range)
+                {
 					this.transform.LookAt (enemy.transform);
-					attack_Enemy (enemy);
-				}
-			} else if (Vector3.Distance (this.transform.localPosition, enemy.transform.localPosition) <= range) {
-				attack_Enemy (enemy);
-			} else {
-				enemy = get_Enemy ();
-				if (enemy != null) {
-					this.transform.LookAt (enemy.transform);
-					attack_Enemy (enemy);
-				}
-			}
-		}
+                    attack_Enemy(enemy);
+                }
+                else
+                {
+                    enemy = get_Enemy();
+                    if (enemy != null)
+                    {
+                        this.transform.LookAt(enemy.transform);
+                        attack_Enemy(enemy);
+                    }
+                }
+            }
+        } else
+        {
+            if (time >= period)
+            {
+                time = 0;
+                if (enemy == null)
+                {
+                    enemy = get_Attacker();
+                    if (enemy != null)
+                    {
+                        this.transform.LookAt(enemy.transform);
+                        attack_Enemy(enemy);
+                    }
+                }
+                else if (Vector3.Distance(this.transform.localPosition, enemy.transform.localPosition) <= range)
+                {
+                    attack_Enemy(enemy);
+                }
+                else
+                {
+                    enemy = get_Attacker();
+                    if (enemy != null)
+                    {
+                        this.transform.LookAt(enemy.transform);
+                        attack_Enemy(enemy);
+                    }
+                }
+            }
+        }
+		
+		
 	}
 	public void attack_Enemy(Enemy enemy){
-		//something about animation
+		this.GetComponent<Animator> ().speed = 1f;
+		this.GetComponent<Animator> ().SetTrigger ("attack");
+		this.GetComponent<Animator> ().speed = 2f;
 		float time;
 		if (period <= 1)
 			time = 0.5f;
@@ -62,15 +133,21 @@ public class Tower : MonoBehaviour
 			time = 0.5f / period;
 		StartCoroutine(bullet_Emit(enemy,enemy.transform.localPosition,time));
 	}
+
 	public IEnumerator bullet_Emit(Enemy enemy,Vector3 pos,float time){
 		yield return new WaitForSeconds (time);
 		Bullet bullet_Obj = Bullet_Manager.create (bullet);
+		Vector3 tmp = this.transform.localPosition;
+		bullet_Obj.transform.localPosition = new Vector3 (tmp.x - 0.1f, 0.5f, tmp.z);
 		if (enemy == null)
-			bullet_Obj.init (pos, bullet_Spd, power);
+			bullet_Obj.init (pos, bullet_Spd, power, bullet);
 		else
-			bullet_Obj.init (enemy, bullet_Spd, power);
-		bullet_Obj.transform.localPosition = this.transform.localPosition;
-	}
+			bullet_Obj.init (enemy, bullet_Spd, power, bullet);
+        GameObject parent_node = GameObject.Find("map_parent_node");
+        bullet_Obj.transform.SetParent(parent_node.transform);
+
+
+    }
 	public Enemy get_Enemy(){
 		for (int i = 0; i < Battle_Manager.enemy_List.Count; i++) {
             if (Battle_Manager.enemy_List[i] == null) return null;
@@ -79,4 +156,16 @@ public class Tower : MonoBehaviour
 		}
 		return null;
 	}
+
+    public Enemy get_Attacker()
+    {
+        for (int i = 0; i < Battle_Manager.attacker_List.Count; i++)
+        {
+            if (Battle_Manager.attacker_List[i] == null) return null;
+            if (Vector3.Distance(this.transform.localPosition, Battle_Manager.attacker_List[i].transform.localPosition) <= range)
+                return Battle_Manager.attacker_List[i];
+        }
+        return null;
+    }
+
 }

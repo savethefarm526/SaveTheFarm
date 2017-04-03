@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Enemy : MonoBehaviour{
+	public const int STATUS_TIME = 1;
+	public const float LOSE_HEALTH_CONTINUOUSLY = 0.02f;
+
 	public List<Vector3> path=new List<Vector3>();
 	public float health, max_Health;
 	public float speed;
@@ -13,7 +16,11 @@ public class Enemy : MonoBehaviour{
 	public float total_Distance;
 	public bool horizontal=true;
 
-	public void init(List<Vector3> path,float health,float speed, int Enemy_Money){
+	public string enemyNo;
+
+	public bool lose_health_skill_on = false;
+
+	public void init(List<Vector3> path,float health,float speed, int Enemy_Money,string model){
 		this.path.AddRange(path);
 		this.transform.localPosition = this.path [0];
 		if (path [1].x == path [0].x)
@@ -25,24 +32,85 @@ public class Enemy : MonoBehaviour{
 		this.total_Distance = 0;
 		//add animation
 		health_Pos=this.transform.FindChild("hp_pos");
+
+		enemyNo = "1";
+		if (model.Equals ("tower4")||model.Equals("zombie3")||model.Equals("zombie4"))
+			enemyNo = "2";
+
+		Animator anim = this.GetComponent<Animator> ();
+		anim.speed = 2f;
+		if (Battle_Manager.ui_Battle.isDefenceMode) {
+			anim.runtimeAnimatorController = Resources.Load ("Animation/enemyDefenseController" + enemyNo) as RuntimeAnimatorController;
+		} else {
+			anim.runtimeAnimatorController = Resources.Load ("Animation/towerAttackController" + enemyNo) as RuntimeAnimatorController;
+		}
 	}
-	public void change_Health(int health){
-		this.health += health;
+
+	public void change_Health(float health, string name){
+        Audio_Manager.PlaySound("hit");
+
+        this.health += health;
+		if(!name.Equals("skill_hurt"))
+			this.GetComponent<Animator> ().SetTrigger ("hit");
 		if (this.health <= 0) {
-			Destroy (this.gameObject);
-			if (Battle_Manager.ui_Battle.isDefenceMode)
+			if(!name.Equals("skill_hurt"))
+				this.GetComponent<Animator> ().SetTrigger ("die");
+			Destroy (this.gameObject, 1f);
+			if (Battle_Manager.ui_Battle.isDefenceMode) {
 				Battle_Manager.money += Enemy_Money;
-			else {
+			}else {
 				Battle_Manager.money += (int)total_Distance;
-				Battle_Manager.enemy_Left--;
-                //Debug.Log(Battle_Manager.enemy_Left);
+				Battle_Manager.attacker_Left--;
+				//Debug.Log(Battle_Manager.attacker_Left);
 			}
+			Battle_Manager.ui_Battle.money_Effect (0);
+		} else {
+			if(!name.Equals("skill_hurt"))
+				this.GetComponent<Animator> ().SetTrigger ("walk");
 		}
 		item_Health.health_Bar.size = item_Health.enemy.health * 1f / item_Health.enemy.max_Health;
+
+		StartCoroutine (show_Status (name));
 	}
-	
+
+	public IEnumerator show_Status(string name){
+		if (name.Equals ("bullet2")&&!this.item_Health.status[0].gameObject.activeSelf) {
+			this.item_Health.status [0].gameObject.SetActive (true);
+			this.speed /= 2;
+			yield return new WaitForSeconds (STATUS_TIME);
+			this.speed *= 2;
+			this.item_Health.status [0].gameObject.SetActive (false);
+		}
+		if (name.Equals ("bullet4")&&!this.item_Health.status[1].gameObject.activeSelf) {
+			this.item_Health.status [1].gameObject.SetActive (true);
+			lose_health_skill_on = true;
+			yield return new WaitForSeconds(STATUS_TIME);
+			lose_health_skill_on = false;
+			this.item_Health.status [1].gameObject.SetActive (false);
+		}
+		if (name.Equals ("power_up")&&!this.item_Health.status[2].gameObject.activeSelf) {
+			this.item_Health.status [2].gameObject.SetActive (true);
+			yield return new WaitForSeconds (STATUS_TIME);
+			this.item_Health.status [2].gameObject.SetActive (false);
+		}
+		if (name.Equals ("speed_up")&&!this.item_Health.status[3].gameObject.activeSelf) {
+			this.item_Health.status [3].gameObject.SetActive (true);
+			yield return new WaitForSeconds (STATUS_TIME);
+			this.item_Health.status [3].gameObject.SetActive (false);
+		}
+	}
+
+	void OnTriggerEnter(Collider other){
+//		other.gameObject.SetActive (false);
+		change_Health (-3, "bullet3");
+	}
+
 	// Update is called once per frame
 	public void mUpdate () {
+		if (lose_health_skill_on) {
+			this.change_Health (-LOSE_HEALTH_CONTINUOUSLY, "skill_hurt");
+		}
+
 		if (path.Count > 0) {
 			for (int i = 0; i < Battle_Manager.ui_Battle.blocks.Count; i++) {
 				if (Battle_Manager.ui_Battle.blocks [i] != null && Vector3.Distance (this.transform.localPosition, Battle_Manager.ui_Battle.blocks [i].transform.localPosition) < 0.1f)
@@ -92,6 +160,7 @@ public class Enemy : MonoBehaviour{
 //				}
 //				Debug.Log ("position: " + this.transform.localPosition);
 				this.transform.localPosition = Vector3.Lerp (this.transform.localPosition, pos, Time.deltaTime / time);
+                
 //				Debug.Log ("initial: " + this.transform.localPosition);
 //				this.transform.localPosition = new Vector3 (this.transform.localPosition.x, 0, this.transform.localPosition.z + (Random.value - 0.5f)/10f);
 //				Debug.Log ("final: " + this.transform.localPosition);
@@ -113,7 +182,7 @@ public class Enemy : MonoBehaviour{
 					else
 						horizontal = true;
 				}
-				Debug.Log ("horizontal: " + horizontal);
+				//Debug.Log ("horizontal: " + horizontal);
 				path.RemoveAt (0);
 
 //				if (Battle_Manager.ui_Battle.portal_Finished && Vector3.Distance (pos, Battle_Manager.ui_Battle.Portal1.transform.localPosition) < 0.1f) {
@@ -127,8 +196,14 @@ public class Enemy : MonoBehaviour{
 			}
 			total_Distance += Vector3.Distance (pre_Pos, this.transform.localPosition);
 		} else {
-			health = 0;
-			Destroy (this.gameObject);
+			this.GetComponent<Animator> ().SetTrigger ("attack");
+            Audio_Manager.PlaySound("base_hit");
+            health = 0;
+			Destroy (this.gameObject,0.6f);
+			if (!Battle_Manager.ui_Battle.isDefenceMode) {
+				Battle_Manager.money += (int)total_Distance;
+				Battle_Manager.ui_Battle.money_Effect (0);
+			}
 			Battle_Manager.enemy_Attack ();
 		}
 	}
