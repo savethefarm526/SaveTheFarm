@@ -7,11 +7,13 @@ public class Enemy_Info {
 	public float speed;
 	public int number;
 	public int money;
-	public Enemy_Info(string model,float health,float speed,int number,int money){
+	public float period;
+	public Enemy_Info(string model,float health,float speed,int number,int money,float period){
 		this.model = model;
 		this.health = health;
 		this.speed = speed;
 		this.number = number;
 		this.money = money;
+		this.period = period;
 	}
 }

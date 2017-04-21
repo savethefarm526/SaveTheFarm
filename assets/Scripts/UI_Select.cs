@@ -19,14 +19,22 @@ public class UI_Select : UI_Base {
 
 	public static int lv = 0;
 
+    public void init()
+    {
+        Camera.main.transform.localPosition = new Vector3(1f, 8f, -4f);
+        Camera.main.transform.localRotation = Quaternion.Euler(70, 0, 0);
+        GameObject parent_node = GameObject.Find("map_parent_node");
+        
+    }
+
+
 	public override void button_Click(string name,GameObject obj){
         Audio_Manager.PlaySound("btn");
         if (name.Equals ("Btn_Back")) {
 			fadeOut = true;
 			choice = 1;
 		} else {
-			if (obj.GetComponent<Image> ().sprite.name == name.Split (' ') [1] + "_0")
-				return;
+			if (obj.GetComponent<Image> ().sprite.name == name.Split (' ') [1] + "_0") return;
 			this.name = name;
 			fadeOut = true;
 			choice = 2;
@@ -144,44 +152,49 @@ public class UI_Select : UI_Base {
         {
 		    case "1":
 				setTowers(towers, Battle_Manager.locked_towers[0]?1:0, Battle_Manager.locked_towers[1]?1:0, Battle_Manager.locked_towers[2]?1:0, Battle_Manager.locked_towers[3]?1:0);
-                setEnemies(lv, enemies, 1, 0, 0, 0);
+                setEnemies(lv, enemies, 1, 1, 0, 0);
                 setAttackers(attackers, 1, 0, 0, 0);
                 break;
             case "2":
 				setTowers(towers, Battle_Manager.locked_towers[0]?1:0, Battle_Manager.locked_towers[1]?1:0, Battle_Manager.locked_towers[2]?1:0, Battle_Manager.locked_towers[3]?1:0);
-                setEnemies(lv, enemies, 1, 0, 0, 0);
+                setEnemies(lv, enemies, 1, 1, 1, 0);
                 setAttackers(attackers, 1, 0, 0, 0);
                 break;
             case "3":
 				setTowers(towers, Battle_Manager.locked_towers[0]?1:0, Battle_Manager.locked_towers[1]?1:0, Battle_Manager.locked_towers[2]?1:0, Battle_Manager.locked_towers[3]?1:0);
-				setEnemies(lv, enemies, 1, 0, 0, 0);
+				setEnemies(lv, enemies, 1, 1, 1, 1);
 				setAttackers(attackers, 1, 0, 0, 0);
                 break;
             case "4":
 				setTowers(towers, Battle_Manager.locked_towers[0]?1:0, Battle_Manager.locked_towers[1]?1:0, Battle_Manager.locked_towers[2]?1:0, Battle_Manager.locked_towers[3]?1:0);
-                setEnemies(lv, enemies, 1, 1, 1, 1);
+                setEnemies(lv, enemies, 2, 1, 1, 1);
                 setAttackers(attackers, 2, 1, 1, 0);
                 break;
             case "5":
 				setTowers(towers, Battle_Manager.locked_towers[0]?1:0, Battle_Manager.locked_towers[1]?1:0, Battle_Manager.locked_towers[2]?1:0, Battle_Manager.locked_towers[3]?1:0);
-                setEnemies(lv, enemies, 1, 1, 1, 1);
+                setEnemies(lv, enemies, 1, 2, 1, 1);
                 setAttackers(attackers, 2, 0, 1, 1);
                 break;
             case "6":
 				setTowers(towers, Battle_Manager.locked_towers[0]?1:0, Battle_Manager.locked_towers[1]?1:0, Battle_Manager.locked_towers[2]?1:0, Battle_Manager.locked_towers[3]?1:0);
-                setEnemies(lv, enemies, 1, 1, 1, 1);
+                setEnemies(lv, enemies, 1, 1, 2, 1);
                 setAttackers(attackers, 2, 1, 0, 1);
                 break;
             case "7":
 				setTowers(towers, Battle_Manager.locked_towers[0]?1:0, Battle_Manager.locked_towers[1]?1:0, Battle_Manager.locked_towers[2]?1:0, Battle_Manager.locked_towers[3]?1:0);
-                setEnemies(lv, enemies, 1, 1, 1, 1);
+                setEnemies(lv, enemies, 3, 1, 1, 1);
                 setAttackers(attackers, 2, 2, 1, 1);
                 break;
             case "8":
 				setTowers(towers, Battle_Manager.locked_towers[0]?1:0, Battle_Manager.locked_towers[1]?1:0, Battle_Manager.locked_towers[2]?1:0, Battle_Manager.locked_towers[3]?1:0);
-                setEnemies(lv, enemies, 1, 1, 1, 1);
+                setEnemies(lv, enemies, 1, 1, 1, 2);
                 setAttackers(attackers, 2, 1, 2, 1);
                 break;
+			case "9":
+				setTowers (towers, Battle_Manager.locked_towers [0] ? 1 : 0, Battle_Manager.locked_towers [1] ? 1 : 0, Battle_Manager.locked_towers [2] ? 1 : 0, Battle_Manager.locked_towers [3] ? 1 : 0);
+				setEnemies (lv, enemies, 2, 1, 1, 2);
+				setAttackers (attackers, 2, 1, 2, 1);
+				break;
         }
 
 		if (lv == 1)
@@ -195,25 +208,39 @@ public class UI_Select : UI_Base {
 
     public void setTowers(List<Tower_Info> towers, int num1, int num2, int num3, int num4)
     {
-        if (num1 > 0) towers.Add(new Tower_Info("tower1", "tower1", 1, 0.8f, 2, "", "bullet1", 1, 15));
-        if (num2 > 0) towers.Add(new Tower_Info("tower2", "tower2", 2, 0.8f, 2, "", "bullet2", 1, 18));
-        if (num3 > 0) towers.Add(new Tower_Info("tower3", "tower3", 3, 0.8f, 3, "", "bullet3", 5, 20));
-        if (num4 > 0) towers.Add(new Tower_Info("tower4", "tower4", 3, 0.8f, 5, "", "bullet4", 1, 23));
+        if (num1 > 0) towers.Add(new Tower_Info("tower1", "tower1", 1, 1.8f, 2, "", "bullet1", 1, 15, 10));
+        if (num2 > 0) towers.Add(new Tower_Info("tower2", "tower2", 2, 1.8f, 2, "", "bullet2", 1, 18, 10));
+        if (num3 > 0) towers.Add(new Tower_Info("tower3", "tower3", 3, 1.8f, 3, "", "bullet3", 5, 20, 10));
+        if (num4 > 0) towers.Add(new Tower_Info("tower4", "tower4", 3, 1.8f, 5, "", "bullet4", 1, 23, 10));
     }
 
     public void setEnemies(int level, List<Enemy_Info> enemies, int num1, int num2, int num3, int num4)
     {
-        for (int i = 0; i < num1; i++) enemies.Add(new Enemy_Info("zombie1", 2 * Mathf.Sqrt(level), 0.5f, 10, 5));
-        for (int i = 0; i < num2; i++) enemies.Add(new Enemy_Info("zombie2", 5 * Mathf.Sqrt(level), 0.2f, 10, 6));
-        for (int i = 0; i < num3; i++) enemies.Add(new Enemy_Info("zombie3", 10 * Mathf.Sqrt(level), 0.1f, 5, 7));
-        for (int i = 0; i < num4; i++) enemies.Add(new Enemy_Info("zombie4", 20 * Mathf.Sqrt(level), 0.1f, 3, 10));
-        
+		if (level <= 4) {
+			for (int i = 0; i < num1; i++)
+				enemies.Add (new Enemy_Info ("zombie1", 2 * Mathf.Sqrt (level), 0.6f, 5, 2, 1.8f));
+			for (int i = 0; i < num2; i++)
+				enemies.Add (new Enemy_Info ("zombie2", 5 * Mathf.Sqrt (level), 0.4f, 5, 3, 1.8f));
+			for (int i = 0; i < num3; i++)
+				enemies.Add (new Enemy_Info ("zombie3", 20 * Mathf.Sqrt (level), 0.3f, 2, 3, 1.8f));
+			for (int i = 0; i < num4; i++)
+				enemies.Add (new Enemy_Info ("zombie4", 30 * Mathf.Sqrt (level), 0.3f, 1, 4, 1.8f));
+		} else {
+			for (int i = 0; i < num1; i++)
+				enemies.Add (new Enemy_Info ("zombie1", 2 * Mathf.Sqrt (level), 0.6f, 10, 2, 1.8f));
+			for (int i = 0; i < num2; i++)
+				enemies.Add (new Enemy_Info ("zombie2", 5 * Mathf.Sqrt (level), 0.4f, 10, 3, 1.8f));
+			for (int i = 0; i < num3; i++)
+				enemies.Add (new Enemy_Info ("zombie3", 20 * Mathf.Sqrt (level), 0.3f, 5, 3, 1.8f));
+			for (int i = 0; i < num4; i++)
+				enemies.Add (new Enemy_Info ("zombie4", 30 * Mathf.Sqrt (level), 0.3f, 3, 4, 1.8f));
+		}
     }
     public void setAttackers( List<Enemy_Info> enemies, int num1, int num2, int num3, int num4)
     {
-        for (int i = 0; i < num1; i++) enemies.Add(new Enemy_Info("tower1", 2, 0.5f, 10, 5));
-        for (int i = 0; i < num2; i++) enemies.Add(new Enemy_Info("tower2", 5, 0.2f, 10, 6));
-        for (int i = 0; i < num3; i++) enemies.Add(new Enemy_Info("tower3", 10, 0.1f, 5, 7));
-        for (int i = 0; i < num4; i++) enemies.Add(new Enemy_Info("tower4", 20, 0.1f, 3, 10));
+        for (int i = 0; i < num1; i++) enemies.Add(new Enemy_Info("tower1", 2, 0.8f, 10, 5, 1.8f));
+        for (int i = 0; i < num2; i++) enemies.Add(new Enemy_Info("tower2", 5, 0.6f, 10, 6, 1.8f));
+        for (int i = 0; i < num3; i++) enemies.Add(new Enemy_Info("tower3", 10, 0.5f, 5, 7, 1.8f));
+        for (int i = 0; i < num4; i++) enemies.Add(new Enemy_Info("tower4", 20, 0.5f, 3, 10, 1.8f));
     }
 }

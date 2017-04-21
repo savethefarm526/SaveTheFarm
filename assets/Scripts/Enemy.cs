@@ -20,7 +20,12 @@ public class Enemy : MonoBehaviour{
 
 	public bool lose_health_skill_on = false;
 
-	public void init(List<Vector3> path,float health,float speed, int Enemy_Money,string model){
+	public bool stop = false, forward = false;
+	public float period;
+	public float time;
+	public Tower target;
+
+	public void init(List<Vector3> path,float health,float speed, int Enemy_Money,string model,float period){
 		this.path.AddRange(path);
 		this.transform.localPosition = this.path [0];
 		if (path [1].x == path [0].x)
@@ -32,6 +37,9 @@ public class Enemy : MonoBehaviour{
 		this.total_Distance = 0;
 		//add animation
 		health_Pos=this.transform.FindChild("hp_pos");
+
+		this.period = period;
+		time = period;
 
 		enemyNo = "1";
 		if (model.Equals ("tower4")||model.Equals("zombie3")||model.Equals("zombie4"))
@@ -105,10 +113,44 @@ public class Enemy : MonoBehaviour{
 		change_Health (-3, "bullet3");
 	}
 
+	public Tower find_Tower_Target(){
+		for (int i = 0; i < Battle_Manager.tower_List.Count; i++) {
+			if (Battle_Manager.tower_List[i]!=null && Vector3.Distance (Battle_Manager.tower_List [i].transform.localPosition, this.transform.localPosition) < 1.1f)
+				return Battle_Manager.tower_List [i];
+		}
+		return null;
+	}
+
 	// Update is called once per frame
 	public void mUpdate () {
 		if (lose_health_skill_on) {
 			this.change_Health (-LOSE_HEALTH_CONTINUOUSLY, "skill_hurt");
+		}
+
+		if (target != null) {
+			if (stop == true) {
+				time += Time.deltaTime;
+				if (time >= period) {
+					time = 0;
+					this.GetComponent<Animator> ().SetTrigger ("attack");
+					Audio_Manager.PlaySound ("base_hit");
+					target.change_Health ();
+				}
+				return;
+			}
+		} else
+			stop = false;
+		if(forward==false && stop==false){
+			if ((target = find_Tower_Target ()) != null) {
+				float rand = Random.value;
+				if (rand >= 0.7f) {
+					stop = true;
+				} else
+					forward = true;
+			} else {
+				stop = false;
+				forward = false;
+			}
 		}
 
 		if (path.Count > 0) {
@@ -201,7 +243,7 @@ public class Enemy : MonoBehaviour{
             health = 0;
 			Destroy (this.gameObject,0.6f);
 			if (!Battle_Manager.ui_Battle.isDefenceMode) {
-				Battle_Manager.money += (int)total_Distance;
+				Battle_Manager.money += (int)(total_Distance / Mathf.Sqrt(Battle_Manager.ui_Battle.level));
 				Battle_Manager.ui_Battle.money_Effect (0);
 			}
 			Battle_Manager.enemy_Attack ();

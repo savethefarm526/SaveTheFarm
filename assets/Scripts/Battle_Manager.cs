@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Battle_Manager {
-	public const int BASE_LIFE=1;
+	public const int BASE_LIFE=5;
 	public const int MONEY_CURRENT_WAVE = 10;
 	public const int INIT_WAVE_TIME = 5;
-	public const int BASE_MONEY = 100;
+	public const int BASE_MONEY = 50;
 
     public static bool next_Wave = true;
 	public const float ENEMY_PERIOD = 10;
@@ -15,7 +15,7 @@ public class Battle_Manager {
     public static GameObject parent_obj = GameObject.Find("map_parent_node");
 
     public static UI_Battle ui_Battle;
-	public static List<Vector3> path, path2;
+	public static List<Vector3> path, path_Alternate, path2;
 	public static List<Enemy_Info> enemies, attackers;
 	public static List<Enemy> enemy_List=new List<Enemy>();
     public static List<Enemy> attacker_List = new List<Enemy>();
@@ -35,34 +35,46 @@ public class Battle_Manager {
     public static bool beforeCountDown = true;
 
 	public static bool[] locked_towers = new bool[] {true, false, false, false, false, false, false, false, false, false, false, false};
+    //public static bool[] locked_towers = new bool[] { true, true, true, true, true, true, true, true, true, true, true, true };
 
-    public static void init(UI_Battle ui_Battle,List<Vector3> path, List<Vector3> path2){
+    public static HashSet<Vector3> cur_grows_pos_list = new HashSet<Vector3>();
+    public static List<GameObject> grows_list = new List<GameObject>();
+    public static List<int> grows_status = new List<int>();
+    public static List<string> grows_name_list = new List<string>();
+    public static void init(UI_Battle ui_Battle,List<Vector3> path, List<Vector3> path_Alternate, List<Vector3> path2)
+    {
 		Battle_Manager.ui_Battle = ui_Battle;
 		Battle_Manager.path = path;
+		Battle_Manager.path_Alternate = path_Alternate;
         Battle_Manager.path2 = path2;
         enemies = ui_Battle.enemies;
         attackers = ui_Battle.attackers;
         next_Enemy = ENEMY_PERIOD;
 		next_Wave = true;
+        
 
 
         if (ui_Battle.enemy_tower_coor_list != null)
         {
             for (int j = 0; j < ui_Battle.enemy_tower_coor_list[0].Count; j++)
 			{
-                create_Tower(ui_Battle.enemy_tower_coor_list[0][j], new Tower_Info("tower1", "zombie1", 1, 2f, 2, "", "", 0, 0));
+				Tower tmp = create_Tower(ui_Battle.enemy_tower_coor_list[0][j], new Tower_Info("tower1", "zombie1", 1, 1.5f, 2, "", "", 0, 0, 5));
+				ui_Battle.bind_Tower (tmp);
             }
             for (int j = 0; j < ui_Battle.enemy_tower_coor_list[1].Count; j++)
             {
-                create_Tower(ui_Battle.enemy_tower_coor_list[1][j], new Tower_Info("tower2", "zombie2", 2, 2f, 2, "", "", 0, 0));
+                Tower tmp = create_Tower(ui_Battle.enemy_tower_coor_list[1][j], new Tower_Info("tower2", "zombie2", 2, 1.5f, 2, "", "", 0, 0, 5));
+				ui_Battle.bind_Tower (tmp);
             }
             for (int j = 0; j < ui_Battle.enemy_tower_coor_list[2].Count; j++)
             {
-                create_Tower(ui_Battle.enemy_tower_coor_list[2][j], new Tower_Info("tower3", "zombie3", 3, 2f, 3, "", "", 0, 0));
+                Tower tmp = create_Tower(ui_Battle.enemy_tower_coor_list[2][j], new Tower_Info("tower3", "zombie3", 3, 1.5f, 3, "", "", 0, 0, 5));
+				ui_Battle.bind_Tower (tmp);
             }
             for (int j = 0; j < ui_Battle.enemy_tower_coor_list[3].Count; j++)
             {
-                create_Tower(ui_Battle.enemy_tower_coor_list[3][j], new Tower_Info("tower4", "zombie4", 3, 2f, 5, "", "", 0, 0));
+                Tower tmp = create_Tower(ui_Battle.enemy_tower_coor_list[3][j], new Tower_Info("tower4", "zombie4", 4, 1.5f, 4, "", "", 0, 0, 5));
+				ui_Battle.bind_Tower (tmp);
             }
 
 
@@ -94,47 +106,61 @@ public class Battle_Manager {
 	public static void enemy_Attack(){
 		if (Battle_Manager.base_Life <= 1) {
 			Battle_Manager.base_Life = 0;
+			Battle_Manager.ui_Battle.life_Effect (1);
 			stop = true;
 			if (!ui_Battle.isDefenceMode) {
 
 				float percentage = (float)attacker_Left / total_Attacker;
-               // Debug.Log(attacker_Left + ", " + total_Attacker);
+				// Debug.Log(attacker_Left + ", " + total_Attacker);
 				if (percentage >= 2.0 / 3)
-					scores [cur_Level*2 - 1] = 3;
-				else if (percentage >= 1.0 / 3 && scores[cur_Level * 2 - 1]<2)
+					scores [cur_Level * 2 - 1] = 3;
+				else if (percentage >= 1.0 / 3 && scores [cur_Level * 2 - 1] < 2)
 					scores [cur_Level * 2 - 1] = 2;
-				else if(scores[cur_Level * 2 - 1]<1)
+				else if (scores [cur_Level * 2 - 1] < 1)
 					scores [cur_Level * 2 - 1] = 1;
 			}
-			if (ui_Battle.isDefenceMode)
-            {
+			if (ui_Battle.isDefenceMode) {
                 
-                UI_Manager.Enter<UI_Result>().init(true, false);
-            }
-				
-			else
+				UI_Manager.Enter<UI_Result> ().init (true, false);
+			} else
 				UI_Manager.Enter<UI_Result> ().init (false, true);
 			ui_Battle.tower_Content.SetActive (false);
-		} else
+		} else {
 			Battle_Manager.base_Life--;
+			Battle_Manager.ui_Battle.life_Effect (1);
+		}
 		ui_Battle.life.text = "" + base_Life;
 	}
 
 
-	public static void create_Tower(Vector3 pos,Tower_Info info){
+	public static Tower create_Tower(Vector3 pos,Tower_Info info){
 		Tower tower = Tower_Manager.create (info.model).AddComponent<Tower>();
-		tower.transform.localPosition = pos;
+		tower.transform.localPosition = new Vector3(pos.x, pos.y+0.2f, pos.z);
         tower.transform.SetParent(parent_obj.transform);
         tower.init (info);
 		tower_List.Add (tower);
+		return tower;
 	}
 	
 
 
 	public static void clear() {
+        for (int i = 0; i < grows_list.Count; i++)
+        {
+            if (grows_list[i] != null)
+            {
+                GameObject.Destroy(grows_list[i]);
+            }
+        }
+        grows_list.Clear();
+        grows_name_list.Clear();
+        cur_grows_pos_list.Clear();
+        grows_status.Clear();
+
         for (int i = 0; i < tower_List.Count; i++)
         {
-            GameObject.Destroy(tower_List[i].gameObject);
+			if(tower_List[i]!=null)
+				GameObject.Destroy(tower_List[i].gameObject);
         }
 		tower_List.Clear ();
 
@@ -155,12 +181,15 @@ public class Battle_Manager {
             GameObject.Destroy(Map_Manager.path_Box[i]);
         }
         Map_Manager.path_Box.Clear();
-
-        
+	
+		for (int i = 0; i < Map_Manager.path_Box_Alternate.Count; i++) {
+			GameObject.Destroy (Map_Manager.path_Box_Alternate [i]);
+		}
+		Map_Manager.path_Box_Alternate.Clear ();
 		
 		for (int i = 0; i < Bullet_Manager.list.Count; i++)
         { 
-			GameObject.Destroy (Bullet_Manager.list [i]);
+            GameObject.Destroy (Bullet_Manager.list [i]);
         }
         Bullet_Manager.list.Clear ();
 
@@ -200,7 +229,11 @@ public class Battle_Manager {
 					} else if (ui_Battle.isDefenceMode && next_Enemy < 0)
                     { // next wave is false, in current wave, creating enemy, wava_time = 0
 						next_Enemy=0.1f * ENEMY_PERIOD/enemies[0].speed;
-                        Enemy enemy = Enemy_Manager.create(enemies[0], path);
+						Enemy enemy;
+						if (Random.value >= 0.5)
+							enemy = Enemy_Manager.create (enemies [0], path);
+						else
+							enemy = Enemy_Manager.create (enemies [0], path_Alternate);
                         ui_Battle.bind(enemy);
                         enemy.transform.SetParent(parent_obj.transform);
                         enemy_List.Add(enemy);
@@ -272,12 +305,18 @@ public class Battle_Manager {
 	}
 
 	public static bool wrong_Pos(Vector3 pos) {
+        if(grows_Pos(pos)) return true;
 		for (int i = 0; i < Map_Manager.path_Box.Count; i++) {
-			if (Vector3.Distance (pos, Map_Manager.path_Box [i].transform.localPosition) < 0.1f)
+			if (Vector3.Distance (pos, Map_Manager.path_Box[i].transform.localPosition) < 0.1f)
 				return true;
 		}
-		
-		return false;
+        for (int i = 0; i < Map_Manager.path_Box_Alternate.Count; i++)
+        {
+            if (Vector3.Distance(pos, Map_Manager.path_Box_Alternate[i].transform.localPosition) < 0.1f)
+                return true;
+        }
+
+        return false;
 	}
 
 	public static bool bomb_Pos(Vector3 pos){
@@ -285,8 +324,21 @@ public class Battle_Manager {
 			if (Vector3.Distance (pos, Map_Manager.path_Box [i].transform.localPosition) < 0.5f)
 				return true;
 		}
+		for (int i = 0; i < Map_Manager.path_Box_Alternate.Count; i++) {
+			if (Vector3.Distance (pos, Map_Manager.path_Box_Alternate [i].transform.localPosition) < 0.5f)
+				return true;
+		}
 		return false;
 	}
+
+    
+    public static bool grows_Pos(Vector3 pos)
+    {
+        return Map_Manager.grows_pos_coors[0].x <= pos.x &&
+            Map_Manager.grows_pos_coors[0].y >= pos.z &&
+            Map_Manager.grows_pos_coors[1].x >= pos.x &&
+            Map_Manager.grows_pos_coors[1].y <= pos.z;
+    }
 
     public static bool portal_Pos(Vector3 pos)
     {
@@ -302,7 +354,7 @@ public class Battle_Manager {
     {
         for (int i = 0; i < tower_List.Count; i++)
         {
-            if (pos == tower_List[i].transform.localPosition)
+			if (tower_List[i]!=null && Vector3.Distance(pos, tower_List[i].transform.localPosition)<0.3f)
                 return i;
         }
         return -1;

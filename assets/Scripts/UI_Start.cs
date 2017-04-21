@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class UI_Start : UI_Base {
 	public const float FADE_TIME = 0.02f;
-	private const int TITLE_SIZE = 150;
+	private const int TITLE_SIZE = 125;
 	private const int BUTTON_SIZE = 50;
 
 	public Text mTitle;
@@ -89,7 +89,7 @@ public class UI_Start : UI_Base {
 				if (choice == 1) {
 					Map_Manager.defense = true;
 					UI_Manager.Exit (this);
-					UI_Manager.Enter<UI_Select> ();
+					UI_Manager.Enter<UI_Select> ().init();
 					UI_Select.fadeIn = true;
 				} else if (choice == 2) {
 					GameObject start = this.gameObject;

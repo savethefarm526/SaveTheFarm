@@ -73,6 +73,7 @@
      <None Include="assets\resources\Map\7.txt" />
      <None Include="assets\resources\Map\4.txt" />
      <None Include="assets\resources\Map\6.txt" />
+     <None Include="assets\resources\Map\9.txt" />
      <None Include="assets\resources\Map\2.txt" />
      <None Include="assets\resources\Shader\CircleImage.shader" />
      <None Include="assets\resources\Map\1.txt" />

@@ -11,7 +11,8 @@ public class Tower_Info {
 	public string bullet;
 	public float bullet_spd;
 	public int money;
-	public Tower_Info(string name,string model,int power,float period,float range,string animation,string bullet,float bullet_spd,int money){
+	public float health;
+	public Tower_Info(string name,string model,int power,float period,float range,string animation,string bullet,float bullet_spd,int money, float health){
 		this.name = name;
 		this.model = model;
 		this.power = power;
@@ -21,5 +22,6 @@ public class Tower_Info {
 		this.bullet = bullet;
 		this.bullet_spd = bullet_spd;
 		this.money = money;
+		this.health = health;
 	}
 }
